@@ -139,9 +139,9 @@ def train_deep_surv(train, val, test, model_obj, out_features,
 
     # Scoring the model
     scores = {
-        'train': score_model(model, train[0], train[1][0], train[1][1]),
-        'val': score_model(model, val[0], val[1][0], val[1][1]),
-        'test': score_model(model, test[0], test[1][0], test[1][1])
+    'train': round(score_model(model, train[0], train[1][0], train[1][1]), 4),
+    'val': round(score_model(model, val[0], val[1][0], val[1][1]), 4),
+    'test': round(score_model(model, test[0], test[1][0], test[1][1]), 4)
     }
 
     return logs_df, model, scores
