@@ -16,6 +16,8 @@ from sksurv.metrics import integrated_brier_score, brier_score
 import itertools
 import matplotlib.pyplot as plt
 import numpy as np
+import requests
+from matplotlib import font_manager
 
 def plot_feat_imp(feature_names, feature_importances, top_n=10):
     """
@@ -26,21 +28,38 @@ def plot_feat_imp(feature_names, feature_importances, top_n=10):
     - feature_importances: array-like, shape (n_features,)
     - top_n: int, number of top features to plot
     """
+    # Apply ggplot style
+    plt.style.use('ggplot')
+
+    # Download the font file
+    font_url = 'https://github.com/tommyngx/style/blob/main/Poppins-Bold.ttf?raw=true'
+    font_path = 'Poppins-Bold.ttf'
+    response = requests.get(font_url)
+    with open(font_path, 'wb') as f:
+        f.write(response.content)
+
+    # Load the font
+    font_manager.fontManager.addfont(font_path)
+    prop = font_manager.FontProperties(fname=font_path)
+
     # Convert feature_importances to a NumPy array
     feature_importances = np.array(feature_importances)
 
     # Get the indices of the top_n feature importances
     indices = feature_importances.argsort()[-top_n:][::-1]
 
-    # Create a bar plot
+    # Create a horizontal bar plot
     plt.figure(figsize=(10, 6))
-    plt.bar(range(top_n), feature_importances[indices], align='center')
-    plt.xticks(range(top_n), [feature_names[i] for i in indices], rotation=45, ha='right')
-    plt.xlabel('Feature')
-    plt.ylabel('Importance')
-    plt.title('Top {} Feature Importances'.format(top_n))
+    plt.barh(range(len(indices)), feature_importances[indices], color='#8f63f4', align='center')
+    # Capitalize the first letter of each feature name
+    capitalized_feature_names = [feature_names[i].capitalize() for i in indices]
+    plt.yticks(range(len(indices)), capitalized_feature_names, fontproperties=prop)
+    plt.xlabel('Relative Importance', fontproperties=prop)
+    plt.title('Top {} Feature Importances'.format(top_n), fontproperties=prop)
+    plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
     plt.tight_layout()
     plt.show()
+    return indices
     
     
 def plot_feat_imp_ori(cols, coef):
