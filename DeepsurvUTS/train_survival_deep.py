@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 pio.templates.default = "plotly_white"
+import matplotlib.pyplot as plt
 
 import itertools
     
@@ -50,8 +51,102 @@ def score_model(model, data, durations, events, discrete=False):
     else:
         surv = model.interpolate(10).predict_surv_df(data)
     return EvalSurv(surv, durations, events, censor_surv='km').concordance_td()
-    
+
 def train_deep_surv(train, val, test, model_obj, out_features,
+                    n_nodes, n_layers, dropout, lr=0.01,
+                    batch_size=16, epochs=500, output_bias=False,
+                    tolerance=10,
+                    model_params={}, discrete=False,
+                    print_lr=True, print_logs=True, verbose=True,
+                    save_path=None, load_path=None):
+    """
+    Train a deep survival model with options to save and load the model.
+
+    Args:
+        train, val, test: Datasets for training, validation, and testing.
+        model_obj: Model class (e.g., CoxPH).
+        out_features: Number of output features.
+        n_nodes, n_layers, dropout: Model architecture hyperparameters.
+        lr: Learning rate.
+        batch_size: Batch size.
+        epochs: Number of epochs.
+        output_bias: Include bias in output layer.
+        tolerance: Patience for early stopping.
+        model_params: Additional parameters for the model.
+        discrete: Use discrete survival modeling.
+        print_lr: Print learning rate.
+        print_logs: Plot logs if True.
+        verbose: Verbosity during training.
+        save_path: Path to save the trained model.
+        load_path: Path to load a pre-trained model.
+
+    Returns:
+        logs_df: DataFrame of training logs.
+        model: Trained model.
+        scores: Train, validation, and test concordance scores.
+    """
+    # Prepare the network
+    in_features = train[0].shape[1]
+    num_nodes = [n_nodes] * n_layers
+    batch_norm = True
+
+    net = tt.practical.MLPVanilla(
+        in_features, num_nodes, out_features,
+        batch_norm, dropout, output_bias=output_bias)
+
+    opt = torch.optim.Adam
+    model = model_obj(net, opt, **model_params)
+    model.optimizer.set_lr(lr)
+
+    # Load pre-trained model if path is provided
+    if load_path and os.path.exists(load_path):
+        model.load_net(load_path)
+        print(f"Model loaded from {load_path}")
+
+    callbacks = [
+        tt.callbacks.EarlyStopping(patience=tolerance),
+        Concordance(val[0], val[1][0], val[1][1], per_epoch=5, discrete=discrete)
+    ]
+
+    # Train the model
+    log = model.fit(
+        train[0], train[1], batch_size, epochs, callbacks, verbose,
+        val_data=val, val_batch_size=batch_size
+    )
+
+    # Convert logs to a DataFrame
+    logs_df = log.to_pandas().reset_index().melt(
+        id_vars="index", value_name="loss", var_name="dataset"
+    )
+
+    # Plot training logs
+    if print_logs:
+        plt.figure(figsize=(10, 6))
+        for dataset in logs_df['dataset'].unique():
+            subset = logs_df[logs_df['dataset'] == dataset]
+            plt.plot(subset['index'], subset['loss'], label=dataset)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Training and Validation Loss')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    # Save the trained model if path is provided
+    if save_path:
+        model.save_net(save_path)
+        print(f"Model saved to {save_path}")
+
+    # Scoring the model
+    scores = {
+        'train': score_model(model, train[0], train[1][0], train[1][1]),
+        'val': score_model(model, val[0], val[1][0], val[1][1]),
+        'test': score_model(model, test[0], test[1][0], test[1][1])
+    }
+
+    return logs_df, model, scores
+
+def train_deep_surv_ori(train, val, test, model_obj, out_features,
                     n_nodes, n_layers, dropout , lr =0.01, 
                     batch_size = 16, epochs = 500, output_bias=False,  
                     tolerance=10, 
