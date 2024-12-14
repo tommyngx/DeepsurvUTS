@@ -54,8 +54,9 @@ def plot_feat_imp(feature_names, feature_importances, top_n=10):
     # Capitalize the first letter of each feature name
     capitalized_feature_names = [feature_names[i].capitalize() for i in indices]
     plt.yticks(range(len(indices)), capitalized_feature_names, fontproperties=prop)
-    plt.xlabel('Relative Importance', fontproperties=prop)
-    plt.title('Top {} Feature Importances'.format(top_n), fontproperties=prop, font_size=20)
+    plt.xlabel('Relative Importance', fontproperties=prop, fontsize=14)
+    plt.ylabel('Features', fontproperties=prop, fontsize=14)
+    plt.title('Top {} Feature Importances'.format(top_n), fontproperties=prop, fontsize=16)
     plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
     plt.tight_layout()
     plt.show()
