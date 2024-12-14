@@ -32,8 +32,8 @@ def plot_feat_imp(feature_names, feature_importances, top_n=10):
     plt.style.use('ggplot')
 
     # Download the font file
-    font_url = 'https://github.com/tommyngx/style/blob/main/Poppins-Bold.ttf?raw=true'
-    font_path = 'Poppins-Bold.ttf'
+    font_url = 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
+    font_path = 'Poppins.ttf'
     response = requests.get(font_url)
     with open(font_path, 'wb') as f:
         f.write(response.content)
@@ -56,7 +56,7 @@ def plot_feat_imp(feature_names, feature_importances, top_n=10):
     plt.yticks(range(len(indices)), capitalized_feature_names, fontproperties=prop)
     plt.xlabel('Relative Importance', fontproperties=prop, fontsize=14)
     plt.ylabel('Features', fontproperties=prop, fontsize=14)
-    plt.title('Top {} Feature Importances'.format(top_n), fontproperties=prop, fontsize=19)
+    plt.title('Top {} Feature Importances'.format(top_n), fontproperties=prop, fontsize=16)
     plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
     plt.tight_layout()
     plt.show()
