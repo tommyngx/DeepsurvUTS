@@ -14,10 +14,36 @@ from sksurv.nonparametric import kaplan_meier_estimator
 from sksurv.metrics import integrated_brier_score, brier_score
 
 import itertools
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_feat_imp(feature_names, feature_importances, top_n=10):
+    """
+    Plots the top_n feature importances.
+
+    Parameters:
+    - feature_names: list of strings, shape (n_features,)
+    - feature_importances: array-like, shape (n_features,)
+    - top_n: int, number of top features to plot
+    """
+    # Convert feature_importances to a NumPy array
+    feature_importances = np.array(feature_importances)
+
+    # Get the indices of the top_n feature importances
+    indices = feature_importances.argsort()[-top_n:][::-1]
+
+    # Create a bar plot
+    plt.figure(figsize=(10, 6))
+    plt.bar(range(top_n), feature_importances[indices], align='center')
+    plt.xticks(range(top_n), [feature_names[i] for i in indices], rotation=45, ha='right')
+    plt.xlabel('Feature')
+    plt.ylabel('Importance')
+    plt.title('Top {} Feature Importances'.format(top_n))
+    plt.tight_layout()
+    plt.show()
     
     
-    
-def plot_feat_imp(cols, coef):
+def plot_feat_imp_ori(cols, coef):
     feat_importance = pd.DataFrame({
         "feature": cols,
         "coef": coef
