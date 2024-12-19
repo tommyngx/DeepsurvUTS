@@ -1,9 +1,11 @@
 #kaleido
 pandas>=2.2.2
 scikit-survival>=0.23.1 
-
+wget
 torch>=2.5.1
 torchtuples>=0.2.2
 pycox>=0.3.0
-
+dcurves
+shap
+lifelines
 #plotly==4.14.3
