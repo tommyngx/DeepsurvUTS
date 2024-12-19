@@ -9,6 +9,20 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import torchtuples as tt
 import json
+import warnings, requests
+
+def getGoogleSeet(spreadsheet_id, outDir, outFile):
+
+  url = f'https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv'
+  response = requests.get(url)
+  if response.status_code == 200:
+    filepath = os.path.join(outDir, outFile)
+    with open(filepath, 'wb') as f:
+      f.write(response.content)
+      print('CSV file saved to: {}'.format(filepath))
+  else:
+    print(f'Error downloading Google Sheet: {response.status_code}')
+
 
 def extract_survival_data(csv_path, dataset_name, cols_x, col_target):
     """
