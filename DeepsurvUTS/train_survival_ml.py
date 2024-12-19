@@ -13,9 +13,7 @@ from sksurv.functions import StepFunction
 from sksurv.nonparametric import kaplan_meier_estimator
 from sksurv.metrics import integrated_brier_score, brier_score
 
-import itertools
 import matplotlib.pyplot as plt
-import numpy as np
 import requests
 from matplotlib import font_manager
 
@@ -104,6 +102,7 @@ def get_bier_score(df, y_train, y_test, survs, times, col_target = "duration", w
         scores[k] = integrated_brier_score(y_train, y_test, v, times)
     
     return scores
+
 
 
 def get_bier_curve(y_train, y_test, survs, times):
@@ -206,3 +205,68 @@ def grid_search(grid_params, df, cv, estimator_fn, cols, col_target, verbose = F
         pass
 
     return best_estimator, results.reset_index(drop=True)
+
+
+def train_and_save_ML_models(estimators, train_x, train_y, test_x, test_y, cols_x, save_model):
+    """
+    Train a list of models, evaluate their performance, and save them to a specified folder.
+
+    Args:
+        estimators (dict): A dictionary of model names and their corresponding estimators.
+        train_x (pd.DataFrame): Training features.
+        train_y (pd.Series): Training target values.
+        test_x (pd.DataFrame): Testing features.
+        test_y (pd.Series): Testing target values.
+        cols_x (list): List of feature column names.
+        save_model (str): Path to the folder where models should be saved.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing training and testing scores for each model.
+    """
+    # Ensure the save folder and models subfolder exist
+    save_model2 = f"{save_model}/models"
+    os.makedirs(save_model2, exist_ok=True)
+
+    # Create a results folder
+    results_folder = f"{save_model}/results"
+    os.makedirs(results_folder, exist_ok=True)
+
+    scores = {}  # Dictionary to store training and testing scores
+
+    for name, estimator in estimators.items():
+        print(f"Training model: {name}")
+        # Train the model
+        estimator.fit(train_x[cols_x], train_y)
+
+        # Evaluate the model
+        scores[name] = {
+            'score_train': estimator.score(train_x[cols_x], train_y),
+            'score_test': estimator.score(test_x[cols_x], test_y)
+        }
+
+        # Save the trained model
+        model_path = os.path.join(save_model2, f"{name}_ML.pkl")
+        with open(model_path, "wb") as f:
+            pickle.dump(estimator, f)
+        print(f"Model saved at: {model_path}")
+
+        # If the model is cox_ph, plot feature importance
+        if name == "cox_ph" and hasattr(estimator, "coef_"):
+            feat_importance_cox = plot_feat_imp(cols_x, estimator.coef_)
+            print(f"Feature importance plotted for {name}.")
+
+    # Convert scores dictionary to a DataFrame
+    scores_df = pd.DataFrame.from_dict(scores, orient='index').reset_index()
+    scores_df.rename(columns={'index': 'model'}, inplace=True)
+
+    # Round scores to 5 decimal places
+    scores_df[['score_train', 'score_test']] = scores_df[['score_train', 'score_test']].round(5)
+
+    print("Model scores:\n", scores_df)
+
+    # Save the scores DataFrame as a CSV in the results folder
+    results_csv_path = os.path.join(results_folder, "result.csv")
+    scores_df.to_csv(results_csv_path, index=False)
+    print(f"Scores saved at: {results_csv_path}")
+
+    return scores_df

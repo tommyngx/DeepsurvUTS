@@ -5,7 +5,6 @@ import datetime
 import json
 import os
 
-
 import torch # For building the networks 
 import torchtuples as tt # Some useful functions
 from torchtuples.callbacks import Callback
@@ -17,6 +16,8 @@ import plotly.express as px
 import plotly.io as pio
 pio.templates.default = "plotly_white"
 import matplotlib.pyplot as plt
+from pycox.models import LogisticHazard, PMF, DeepHitSingle, CoxPH
+from pycox.models import DeepHitSingle
 
 import itertools
     
@@ -255,3 +256,289 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
     model.load_net(os.path.join(path, filename))
 
     return model
+
+
+import os
+import numpy as np
+import pandas as pd
+
+def train_and_save_deepsurv(train_x, train_y, test_x, test_y, cols_x, save_folder, params, train_deep_surv, CoxPH, **kwargs):
+    """
+    Train a DeepSurv model, evaluate it, and save results to a specified folder.
+
+    Args:
+        train_x (pd.DataFrame): Training features.
+        train_y (pd.DataFrame): Training target (time-to-event and censoring).
+        test_x (pd.DataFrame): Testing features.
+        test_y (pd.DataFrame): Testing target (time-to-event and censoring).
+        cols_x (list): List of feature column names.
+        save_folder (str): Path to the folder where models and results should be saved.
+        params (dict): Model hyperparameters.
+        train_deep_surv (function): Function to train the DeepSurv model.
+        CoxPH (class): Cox proportional hazards loss function or model.
+        **kwargs: Additional arguments for `train_deep_surv`.
+
+    Returns:
+        pd.DataFrame: Updated results DataFrame.
+    """
+    # Create folders for saving outputs
+    models_folder = os.path.join(save_folder, "models")
+    results_folder = os.path.join(save_folder, "results")
+    os.makedirs(models_folder, exist_ok=True)
+    os.makedirs(results_folder, exist_ok=True)
+
+    # Prepare the data
+    get_target = lambda df: (df['time2event'].values, df['censored'].values)
+    y_train = get_target(train_x)
+    y_test = get_target(test_x)
+
+    train = (np.array(train_x[cols_x]).astype(np.float32), y_train)
+    test = (np.array(test_x[cols_x]).astype(np.float32), y_test)
+
+    print("Training data and target prepared.")
+
+    # Train the DeepSurv model
+    logs_df, model, scores = train_deep_surv(
+        train,
+        test,  # No separate validation set, using test here
+        test,
+        CoxPH,
+        out_features=1,
+        **params,
+        **kwargs
+    )
+
+    # Save the trained model using .save_net()
+    model_path = os.path.join(models_folder, "deepsurv_DL.pt")
+    model.save_net(model_path)
+    print(f"Model saved to: {model_path}")
+
+    # Prepare result entry
+    result_entry = {
+        'model': 'deepsurv',
+        'score_train': scores['train'],
+        'score_test': scores['test'],
+        'n_nodes': params.get('n_nodes'),
+        'n_layers': params.get('n_layers'),
+        'dropout': params.get('dropout'),
+        'lr': params.get('lr'),
+        'model_params': params.get('model_params'),
+        'batch_size': params.get('batch_size'),
+        'discrete': params.get('discrete')
+    }
+
+    # Append or replace scores in result.csv
+    result_csv_path = os.path.join(results_folder, "result.csv")
+    new_entry = pd.DataFrame([result_entry])
+
+    if os.path.exists(result_csv_path):
+        # Load existing results
+        existing_results = pd.read_csv(result_csv_path)
+        existing_results = existing_results[existing_results['model'] != 'deepsurv']
+
+        # Check if 'deepsurv_DL' already exists
+        if 'deepsurv' in existing_results['model'].values:
+            # Replace the existing entry
+            existing_results.loc[existing_results['model'] == 'deepsurv', result_entry.keys()] = new_entry.values
+        else:
+            # Append the new entry
+            existing_results = pd.concat([existing_results, new_entry], ignore_index=True)
+    else:
+        # Create a new results file if not already present
+        existing_results = new_entry
+
+    # Save the updated results
+    existing_results.to_csv(result_csv_path, index=False)
+    print(scores)
+    print(f"Updated results saved to: {result_csv_path}")
+
+    # Return updated results
+    return existing_results
+
+
+def grid_search_deep_models(train_x, train_y, test_x, test_y, cols_x, model_target, out_features, grid_params, model_obj, train_deep_surv, **kwargs):
+    """
+    Perform a grid search over DeepSurv or DeepHit models, evaluate them, and return the best model and results table.
+
+    Args:
+        train_x (pd.DataFrame): Training features.
+        train_y (pd.DataFrame): Training target (time-to-event and censoring).
+        test_x (pd.DataFrame): Testing features.
+        test_y (pd.DataFrame): Testing target (time-to-event and censoring).
+        cols_x (list): List of feature column names.
+        col_target (str): Target column name for survival analysis.
+        model_target (str): Specify the model type ('Deepsurv' or 'DeepHit').
+        out_features (int): Number of output features for the model.
+        grid_params (dict): Grid of parameters for the model.
+        model_obj (class): DeepSurv or DeepHit model class or object.
+        train_deep_surv (function): Function to train DeepSurv or DeepHit models.
+        **kwargs: Additional arguments for `train_deep_surv`.
+
+    Returns:
+        tuple: The best model and a DataFrame containing all results sorted by test score.
+    """
+    # Data preparation based on model_target
+    if model_target == 'Deepsurv':
+        get_target = lambda df: (df['time2event'].values, df['censored'].values)
+        y_train = get_target(train_x)
+        y_test = get_target(test_x)
+        train = (np.array(train_x[cols_x]).astype(np.float32), y_train)
+        test = (np.array(test_x[cols_x]).astype(np.float32), y_test)
+    elif model_target == 'DeepHit':
+        num_durations = int(train_x['time2event'].max())
+        labtrans = DeepHitSingle.label_transform(num_durations)
+        get_target = lambda df: (df['time2event'].values, df['censored'].values)
+        y_train = labtrans.fit_transform(*get_target(train_x))
+        y_test = labtrans.transform(*get_target(test_x))
+        train = (np.array(train_x[cols_x]).astype(np.float32), y_train)
+        test = (np.array(test_x[cols_x]).astype(np.float32), y_test)
+    else:
+        raise ValueError("Invalid model_target. Must be 'Deepsurv' or 'DeepHit'.")
+
+    # Initialize variables
+    best_score = -np.inf
+    n_combinations = np.prod([len(v) for v in grid_params.values()])
+    print(f'{n_combinations} total scenarios to run')
+
+    results = {}
+    best_model = None
+
+    try:
+        # Iterate through all combinations of parameters
+        for i, combi in enumerate(itertools.product(*grid_params.values())):
+            params = {k: v for k, v in zip(grid_params.keys(), combi)}
+            params_ = params.copy()
+
+            # Handle nested model parameters if applicable
+            if 'model_params' in params_.keys():
+                params_['model_params'] = {k: v for k, v in params_['model_params'].items() if k != 'duration_index'}
+
+            print(f'{i+1}/{n_combinations}: params: {params_}')
+
+            # Train the model
+            logs_df, model, scores = train_deep_surv(
+                train, test, test, model_obj, out_features, print_logs= False,
+                **params, **kwargs
+            )
+
+            # Collect results for this combination
+            results[i] = {**params_}
+            results[i]['lr'] = model.optimizer.param_groups[0]['lr'] if hasattr(model, 'optimizer') else None
+            for k, score in scores.items():
+                results[i][f'score_{k}'] = score
+
+            # Compare and update the best model
+            current_score = scores.get('test', -np.inf)
+            print(f'Current score: {current_score} vs. Best score: {best_score}')
+            if best_score < current_score:
+                best_score = current_score
+                best_model = model
+
+    except KeyboardInterrupt:
+        print("Grid search interrupted by user.")
+
+    # Compile results into a DataFrame
+    results_table = pd.DataFrame.from_dict(results, orient='index')
+    results_table = results_table.sort_values(by='score_test', ascending=False).reset_index(drop=True)
+
+    return best_model, results_table
+
+
+def train_and_save_deephit(train_x, train_y, test_x, test_y, cols_x, save_folder, params, train_deep_surv, **kwargs):
+    """
+    Train a DeepHit model, evaluate it, and save results to a specified folder.
+
+    Args:
+        train_x (pd.DataFrame): Training features.
+        train_y (pd.DataFrame): Training target (time-to-event and censoring).
+        test_x (pd.DataFrame): Testing features.
+        test_y (pd.DataFrame): Testing target (time-to-event and censoring).
+        cols_x (list): List of feature column names.
+        save_folder (str): Path to the folder where models and results should be saved.
+        params (dict): Model hyperparameters.
+        train_deep_surv (function): Function to train the DeepHit model.
+        **kwargs: Additional arguments for `train_deep_surv`.
+
+    Returns:
+        pd.DataFrame: Updated results DataFrame.
+    """
+    # Create folders for saving outputs
+    models_folder = os.path.join(save_folder, "models")
+    results_folder = os.path.join(save_folder, "results")
+    os.makedirs(models_folder, exist_ok=True)
+    os.makedirs(results_folder, exist_ok=True)
+
+    # Prepare the data for DeepHit
+    num_durations = int(train_x['time2event'].max())
+    labtrans = DeepHitSingle.label_transform(num_durations)
+    get_target = lambda df: (df['time2event'].values, df['censored'].values)
+
+    y_train = labtrans.fit_transform(*get_target(train_x))
+    y_test = labtrans.transform(*get_target(test_x))
+
+    train = (np.array(train_x[cols_x]).astype(np.float32), y_train)
+    test = (np.array(test_x[cols_x]).astype(np.float32), y_test)
+
+    print("Training data and target prepared for DeepHit.")
+
+    # Train the DeepHit model
+    logs_df, model, scores = train_deep_surv(
+        train,
+        test,  # No separate validation set, using test here
+        test,
+        DeepHitSingle,  # Specify the DeepHit model class
+        tolerance=10,
+        print_lr=True, print_logs=True,
+        out_features = num_durations,
+        **params,
+        **kwargs
+    )
+
+    # Save the trained model using .save_net()
+    model_path = os.path.join(models_folder, "deephit_DL.pt")
+    model.save_net(model_path)
+    print(f"Model saved to: {model_path}")
+
+    # Prepare result entry
+    result_entry = {
+        'model': 'deephit',
+        'score_train': scores['train'],
+        'score_test': scores['test'],
+        'n_nodes': params.get('n_nodes'),
+        'n_layers': params.get('n_layers'),
+        'dropout': params.get('dropout'),
+        'lr': params.get('lr'),
+        'model_params': params.get('model_params'),
+        'batch_size': params.get('batch_size'),
+        'discrete': params.get('discrete')
+    }
+
+    # Append or replace scores in result.csv
+    result_csv_path = os.path.join(results_folder, "result.csv")
+    new_entry = pd.DataFrame([result_entry])
+
+    if os.path.exists(result_csv_path):
+        # Load existing results
+        existing_results = pd.read_csv(result_csv_path)
+        existing_results = existing_results[existing_results['model'] != 'deephit']
+
+        # Check if 'deephit' already exists
+        if 'deephit' in existing_results['model'].values:
+            # Replace the existing entry
+            existing_results.loc[existing_results['model'] == 'deephit', result_entry.keys()] = new_entry.values
+        else:
+            # Append the new entry
+            existing_results = pd.concat([existing_results, new_entry], ignore_index=True)
+    else:
+        # Create a new results file if not already present
+        existing_results = new_entry
+
+    # Save the updated results
+    existing_results.to_csv(result_csv_path, index=False)
+    print(scores)
+    print(f"Updated results saved to: {result_csv_path}")
+
+    # Return updated results
+    return existing_results
+
+
