@@ -372,7 +372,46 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
 
     return brier_curves
 
+def plot_brier_scores(df, highlight_mean=False):
+    """
+    Bar plot of Brier scores for models from a DataFrame with additional options.
 
+    Args:
+        df (pd.DataFrame): DataFrame with models as the index and Brier scores as a column.
+        highlight_mean (bool): If True, highlights specific models (e.g., 'deepsurv', 'deephit') in royal blue, others in dark grey.
+    """
+    # Sort the DataFrame by Brier scores
+    df_sorted = df.sort_values(by=df.columns[0], ascending=True)  # Sorting by the first column
+
+    # Colors based on highlighting option
+    if highlight_mean:
+        # Highlight 'deepsurv' and 'deephit' (case and spacing insensitive)
+        colors = [
+            "royalblue" if "deepsurv" in model.lower().replace(" ", "") or "deephit" in model.lower().replace(" ", "")
+            else "darkgrey" for model in df_sorted.index
+        ]
+    else:
+        colors = ['skyblue', 'orange', 'green', 'red', 'purple', 'pink'][:len(df_sorted)]
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(df_sorted.index, df_sorted.iloc[:, 0], color=colors)
+
+    # Add score labels on top of each bar
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2, height + 0.01,  # Position slightly above the bar
+            f"{height:.3f}", ha='center', va='bottom', fontsize=10
+        )
+
+    # Customize plot
+    plt.xlabel('Model', fontsize=12)
+    plt.ylabel('Brier Score', fontsize=12)
+    plt.title('Brier Scores for Each Model (Sorted)', fontsize=14)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)  # Optional: Add a horizontal grid for better readability
+    plt.tight_layout()
+    plt.show()
 
 
 def get_bier_score(df, y_train, y_test, survs, times, col_target="time2event", with_benchmark=True):
