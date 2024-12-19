@@ -27,6 +27,7 @@ from sksurv.ensemble import RandomSurvivalForest
 
 from sksurv.functions import StepFunction
 from sksurv.nonparametric import kaplan_meier_estimator
+from matplotlib.ticker import FuncFormatter
 
 
 def compute_score(censored, target, prediction, sign):
@@ -974,3 +975,76 @@ def plot_shap_values_for_deepsurv(model, X_train, X_val, scaler, cols_x, times):
     top_feature = cols_x[np.argmax(abs(shap_values_val.values).mean(axis=0))]
     print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
     #shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, feature_names=cols_x)
+
+
+def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np.arange(1, 20), color_list=None, title_suffix="Survival Curve", y_limits=(0, 1)):
+    """
+    Plot risk scores over time for selected patients using model predictions.
+
+    Args:
+        models (dict): Dictionary of trained models.
+        X_test (pd.DataFrame): Test dataset containing feature data.
+        patient_ids (list): List of patient IDs to plot.
+        cols_x (list): List of feature column names.
+        name (str): Name of the model to use for predictions.
+        times (np.ndarray): Time points for evaluating survival probabilities.
+        color_list (list, optional): List of colors for plotting. Defaults to a predefined color list.
+        title_suffix (str, optional): Suffix for the plot title. Defaults to "Survival Curve".
+        y_limits (tuple, optional): Tuple specifying the limits of the y-axis. Defaults to (0, 1).
+
+    Returns:
+        None
+    """
+    # Define a default color list if none is provided
+    if color_list is None:
+        color_list = [
+            "#11cd9a", "#f0614a", "#ab63fa", "#ef553b", "#1f77b4",
+            "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+            "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+        ]
+
+    # Ensure the specified model exists
+    if name not in models:
+        raise ValueError(f"Model '{name}' not found in the provided models dictionary.")
+
+    # Generate survival probabilities
+    model = models[name]
+    survs = model.predict_surv_df(np.array(X_test[cols_x]).astype(np.float32))
+
+    # Create the plot
+    plt.figure(figsize=(10, 5))
+
+    # Plot each patient's survival curve with assigned colors
+    for idx, patient_id in enumerate(patient_ids):
+        if patient_id not in X_test.index:
+            print(f"Warning: Patient ID {patient_id} not found in X_test.")
+            continue
+
+        color = color_list[idx % len(color_list)]  # Cycle through colors if more patients than colors
+        plt.plot(
+            survs.index,  # X-axis: Time in years
+            survs.iloc[:, patient_id],  # Y-axis: Survival probability for the patient
+            label=f"Patient {patient_id}",
+            color=color
+        )
+
+    # Customize the plot
+    plt.title(f"{title_suffix} ({name})", fontsize=14)
+    plt.xlabel('Time (years)', fontsize=12)
+    plt.ylabel('Survival Probability (%)', fontsize=12)
+    plt.ylim(*y_limits)
+
+    # Format the y-axis to display percentages
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y * 100:.0f}%"))
+
+    # Customize legend
+    legend = plt.legend()
+    legend.get_frame().set_facecolor('white')
+    legend.get_frame().set_edgecolor('black')
+
+    # Add grid and layout adjustments
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
