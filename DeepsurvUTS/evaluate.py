@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import time
+import os
 
 import plotly.graph_objects as go
 import plotly.express as px
@@ -19,6 +20,10 @@ from lifelines import KaplanMeierFitter
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import roc_curve, auc
 import shap
+from sksurv.linear_model import CoxPHSurvivalAnalysis
+from sksurv.ensemble import GradientBoostingSurvivalAnalysis
+from sksurv.svm import FastSurvivalSVM
+from sksurv.ensemble import RandomSurvivalForest
 
 
 def compute_score(censored, target, prediction, sign):
