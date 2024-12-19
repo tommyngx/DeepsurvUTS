@@ -25,6 +25,9 @@ from sksurv.ensemble import GradientBoostingSurvivalAnalysis
 from sksurv.svm import FastSurvivalSVM
 from sksurv.ensemble import RandomSurvivalForest
 
+from sksurv.functions import StepFunction
+from sksurv.nonparametric import kaplan_meier_estimator
+
 
 def compute_score(censored, target, prediction, sign):
     return concordance_index_censored(list(censored.astype(bool)), target, sign*prediction)[0]
@@ -369,6 +372,50 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
 
     return brier_curves
 
+
+
+
+def get_bier_score(df, y_train, y_test, survs, times, col_target="time2event", with_benchmark=True):
+    """
+    Compute Brier scores for survival models with optional benchmarks.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing survival data.
+        y_train (structured array): Training survival data.
+        y_test (structured array): Testing survival data.
+        survs (list): List of survival functions for test samples.
+        times (np.ndarray): Time points for evaluation.
+        col_target (str): Column name for the time-to-event variable.
+        with_benchmark (bool): Whether to include benchmarks (Kaplan-Meier, random).
+
+    Returns:
+        dict: Dictionary of integrated Brier scores for each prediction type.
+    """
+    # Ensure survs contains callable functions
+    if not all(callable(fn) for fn in survs):
+        raise TypeError("All elements in 'survs' must be callable survival functions.")
+
+    if with_benchmark:
+        # Compute Kaplan-Meier function for benchmarks
+        km_func = StepFunction(
+            *kaplan_meier_estimator(df["censored"].astype(bool), df[col_target])
+        )
+
+        # Create prediction sets
+        preds = {
+            'estimator': np.row_stack([fn(times) for fn in survs]),
+            'random': 0.5 * np.ones((df.shape[0], times.shape[0])),
+            'kaplan_meier': np.tile(km_func(times), (df.shape[0], 1))
+        }
+    else:
+        preds = {'estimator': np.row_stack([fn(times) for fn in survs])}
+
+    # Compute integrated Brier scores
+    scores = {}
+    for k, v in preds.items():
+        scores[k] = integrated_brier_score(y_train, y_test, v, times)
+
+    return scores
 
 def plot_brier_curves_with_color_list(brier_curves, model_name_map=None):
     """
