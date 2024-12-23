@@ -1,5 +1,5 @@
 import pandas as pd
-import os
+import os, shutil
 import pickle
 #from sklearn.model_selection import train_test_split, split_train_test
 from sklearn.preprocessing import MinMaxScaler
@@ -326,3 +326,72 @@ def generate_all_probabilities(models, X_test, y_time, y_censored, time_point, c
     )
 
     return predicted_probs
+
+def clone_and_update_repo(github_acc="Osteolab", github_email="tommylimitless@gmail.com", github_key="X", 
+                          folderX="/path/to/source", commit_message="Update", branch="main"):
+    """
+    Clone a GitHub repository, commit changes, and push updates.
+
+    Args:
+        github_acc (str): GitHub account username.
+        github_email (str): GitHub email for configuration.
+        github_key (str): GitHub personal access token.
+        folderX (str): Path to the folder whose contents will be added to the repo.
+        commit_message (str): Commit message for the update.
+        branch (str): Branch to push changes to. Default is "main".
+    """
+    try:
+        # Define the repository name and paths
+        folder_name = "DeepsurvUTS_results"
+        repo_path = f"/content/{folder_name}"
+        
+        # Step 1: Remove existing folder if it exists
+        if os.path.exists(repo_path):
+            print(f"Removing existing folder: {repo_path}")
+            shutil.rmtree(repo_path)
+        
+        # Step 2: Clone the repository
+        repo_url = f"https://{github_acc}:{github_key}@github.com/tommyngx/{folder_name}"
+        print(f"Cloning repository from: {repo_url}")
+        os.chdir("/content")
+        subprocess.run(["git", "clone", repo_url], check=True)
+        
+        # Step 3: Configure Git
+        print("Configuring Git...")
+        subprocess.run(["git", "config", "--global", "user.name", github_acc], check=True)
+        subprocess.run(["git", "config", "--global", "user.email", github_email], check=True)
+
+        # Step 4: Check if folderX name exists in the destination and remove it
+        folderX_name = os.path.basename(folderX)  # Extract the folder name
+        destination_subfolder = os.path.join(repo_path, folderX_name)
+
+        if os.path.exists(destination_subfolder):
+            print(f"Removing existing folder: {destination_subfolder}")
+            shutil.rmtree(destination_subfolder)
+
+        # Copy contents from folderX to the cloned repository
+        print(f"Copying contents from {folderX} to {repo_path}...")
+        copy_folder_contents(folderX, repo_path)
+
+        # Cleanup specific files (optional, based on use case)
+        #for item in ['data', 'models', 'model_scores_dl2.csv', 'outputs_mros']:
+        for item in ['data', 'models', 'model_scores_dl2.csv', 'outputs_sof']:
+            item_path = os.path.join(repo_path, item)
+            if os.path.exists(item_path):
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
+        
+        # Step 5: Add, commit, and push changes
+        os.chdir(repo_path)
+        print("Adding, committing, and pushing changes...")
+        subprocess.run(["git", "add", "."], check=True)
+        subprocess.run(["git", "commit", "-m", commit_message], check=False)
+        subprocess.run(["git", "push", "origin", branch], check=True)
+        
+        print(f"Changes pushed successfully to the {branch} branch!")
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
