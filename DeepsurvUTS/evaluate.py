@@ -563,7 +563,7 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
 
             # Convert normalized survival probabilities to StepFunctions
             survs[model_name] = [
-                StepFunction(time_points, np.full_like(time_points, prob)) for prob in survival_probs
+                StepFunction(time_points, np.full(len(time_points), prob)) for prob in survival_probs
             ]
         else:
             print(f"Model '{model_name}' does not support survival probabilities. Skipping.")
