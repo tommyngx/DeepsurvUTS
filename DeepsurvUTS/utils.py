@@ -375,7 +375,7 @@ def clone_and_update_repo(github_acc="Osteolab", github_email="tommylimitless@gm
 
         # Cleanup specific files (optional, based on use case)
         #for item in ['data', 'models', 'model_scores_dl2.csv', 'outputs_mros']:
-        for item in ['data', 'models', 'model_scores_dl2.csv', 'outputs_sof']:
+        for item in ['data', 'models', 'model_scores_dl2.csv', 'outputs_sof', 'outputs_mros']:
             item_path = os.path.join(repo_path, item)
             if os.path.exists(item_path):
                 if os.path.isdir(item_path):
