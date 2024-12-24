@@ -1122,7 +1122,7 @@ def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np
     # Show the plot
     plt.show()
 
-    def plot_shap_values_for_deepsurv2(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
+def plot_shap_values_for_deepsurv2(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
     import shap
     import matplotlib.pyplot as plt
     import numpy as np
