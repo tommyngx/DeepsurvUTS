@@ -251,10 +251,14 @@ def train_and_save_ML_models(estimators, train_x, train_y, test_x, test_y, cols_
             pickle.dump(estimator, f)
         print(f"Model saved at: {model_path}")
 
-        # If the model is cox_ph, plot feature importance
+        # If the model is cox_ph, plot and save feature importance
         if name == "cox_ph" and hasattr(estimator, "coef_"):
             feat_importance_cox = plot_feat_imp(cols_x, estimator.coef_)
             print(f"Feature importance plotted for {name}.")
+            # Save the feature importance plot
+            feat_imp_path = os.path.join(results_folder, "cox_ph_feature_importance.png")
+            plt.savefig(feat_imp_path, format='png')
+            print(f"Feature importance plot saved at: {feat_imp_path}")
 
     # Convert scores dictionary to a DataFrame
     scores_df = pd.DataFrame.from_dict(scores, orient='index').reset_index()
