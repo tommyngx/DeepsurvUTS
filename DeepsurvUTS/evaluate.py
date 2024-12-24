@@ -1012,7 +1012,7 @@ def plot_shap_values_for_deepsurv(model, X_train, X_val, scaler, cols_x, times):
     #shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, feature_names=cols_x)
 
 
-def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np.arange(1, 20), color_list=None, title_suffix="Survival Curve", y_limits=(0, 1)):
+def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np.arange(1, 20), color_list=None, title_suffix="Survival Curve", y_limits=(0, 1), save_folder=None):
     """
     Plot risk scores over time for selected patients using model predictions.
 
@@ -1026,6 +1026,7 @@ def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np
         color_list (list, optional): List of colors for plotting. Defaults to a predefined color list.
         title_suffix (str, optional): Suffix for the plot title. Defaults to "Survival Curve".
         y_limits (tuple, optional): Tuple specifying the limits of the y-axis. Defaults to (0, 1).
+        save_folder (str, optional): Folder to save the plot as a .png file.
 
     Returns:
         None
@@ -1080,6 +1081,11 @@ def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np
     # Add grid and layout adjustments
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
+
+    # Save the plot if save_folder is provided
+    if save_folder:
+        save_path = f"{save_folder}/results/patient_risk_scores.png"
+        plt.savefig(save_path, format='png')
 
     # Show the plot
     plt.show()
