@@ -328,6 +328,34 @@ def generate_all_probabilities(models, X_test, y_time, y_censored, time_point, c
 
     return predicted_probs
 
+def copy_folder_contents(source_folder, destination_folder):
+    """
+    Copy source_folder as a subfolder inside destination_folder, while retaining existing items in destination_folder.
+    
+    Args:
+        source_folder (str): Path to the source folder.
+        destination_folder (str): Path to the destination folder.
+    """
+    try:
+        # Ensure source exists
+        if not os.path.exists(source_folder):
+            raise FileNotFoundError(f"Source folder '{source_folder}' does not exist.")
+        
+        # Ensure destination exists
+        if not os.path.exists(destination_folder):
+            os.makedirs(destination_folder)  # Create destination folder if it doesn't exist
+        
+        # Define the new path for source_folder inside destination_folder
+        new_subfolder = os.path.join(destination_folder, os.path.basename(source_folder))
+        
+        # Copy source_folder into destination_folder as a subfolder
+        shutil.copytree(source_folder, new_subfolder, dirs_exist_ok=True)  # Merge if subfolder exists
+        
+        print(f"'{source_folder}' copied successfully as '{new_subfolder}' inside '{destination_folder}'")
+    except Exception as e:
+        print(f"Error: {e}")
+
+
 def clone_and_update_repo(github_acc="Osteolab", github_email="tommylimitless@gmail.com", github_key="X", 
                           folderX="/path/to/source", commit_message="Update", branch="main"):
     """
