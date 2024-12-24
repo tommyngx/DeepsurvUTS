@@ -1121,3 +1121,69 @@ def plot_patient_risk_scores(models, X_test, patient_ids, cols_x, name, times=np
 
     # Show the plot
     plt.show()
+
+    def plot_shap_values_for_deepsurv2(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
+    import shap
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Reverse scaling for SHAP interpretation
+    X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
+    X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
+
+    # Initialize SHAP Explainer for DeepSurv
+    print("Initializing SHAP explainer for DeepSurv...")
+    times = [10]
+    #def model_predict(X):
+    #    """Predict risk scores using the DeepSurv model."""
+    #    return model.predict(X)
+    def model_predict(X):
+        """
+        Custom prediction function for SHAP.
+        Predicts interpolated survival probabilities at specified time points.
+        """
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        X_tensor = torch.tensor(X, dtype=torch.float32).to(device)  # Convert to PyTorch tensor
+        survival_preds = model.predict_surv_df(X_tensor)  # Predict survival curves
+
+        # Interpolate survival probabilities at the specified times
+        interpolated_probs = survival_preds.reindex(
+            survival_preds.index.union(times)
+        ).interpolate(method="index").loc[times]
+
+        # Average over time points for SHAP
+        mean_probs = interpolated_probs.mean(axis=0)
+        return mean_probs.values
+
+    explainer = shap.Explainer(model_predict, X_train_original.values)
+
+    # Compute SHAP values for validation dataset
+    print("Computing SHAP values for the validation dataset...")
+    shap_values_val = explainer(X_val_original)
+
+    # Plot SHAP waterfall plot for the first validation sample
+    print("Generating SHAP waterfall plot for the first validation sample...")
+    shap.plots.waterfall(shap_values_val[0])
+    if save_folder:
+        save_path = f"{save_folder}/results/shap_waterfall.png"
+        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        print(f"SHAP waterfall plot saved at: {save_path}")
+
+    # Plot SHAP summary plot for validation dataset
+    print("Generating SHAP summary plot for validation dataset...")
+    shap.summary_plot(shap_values_val, X_val_original)
+    if save_folder:
+        save_path = f"{save_folder}/results/shap_summary.png"
+        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        print(f"SHAP summary plot saved at: {save_path}")
+
+    # Plot SHAP dependence plot for the most important feature
+    top_feature = cols_x[np.argmax(np.abs(shap_values_val.values).mean(axis=0))]
+    print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
+    shap.dependence_plot(top_feature, shap_values_val.values, X_val_original)
+    if save_folder:
+        save_path = f"{save_folder}/results/shap_dependence.png"
+        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        print(f"SHAP dependence plot saved at: {save_path}")
+
+    return explainer, X_val_original, shap_values_val
