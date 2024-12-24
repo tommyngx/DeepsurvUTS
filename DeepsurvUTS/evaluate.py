@@ -1290,8 +1290,7 @@ def plot_shap_values_for_deepsurv4(model, X_train, y_train, X_val, scaler, cols_
             batch = X[i:i + batch_size]
             if is_torch_model:
                 batch = torch.tensor(batch, dtype=torch.float32).to(device)
-                preds = model.predict_surv_df(batch)
-                preds = preds.mean(axis=0).values
+                preds = model.predict_surv_df(batch).mean(axis=0).values
             else:
                 # For non-PyTorch models (e.g., CoxPH)
                 preds = model.predict(batch)
