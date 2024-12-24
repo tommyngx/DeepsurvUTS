@@ -919,7 +919,22 @@ def reverse_scaling(X_scaled, scaler, feature_names):
     X_original = scaler.inverse_transform(X_scaled)
     return pd.DataFrame(X_original, columns=feature_names)
 
-def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x):
+def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
+    """
+    Compute and plot SHAP values for a machine learning model.
+
+    Args:
+        model: Trained machine learning model.
+        X_train (pd.DataFrame): Scaled training feature data.
+        y_train (pd.Series): Training target values.
+        X_val (pd.DataFrame): Scaled validation feature data.
+        scaler: Fitted scaler used for preprocessing features.
+        cols_x (list): List of feature column names.
+        save_folder (str, optional): Folder to save the SHAP plots as .png files.
+
+    Returns:
+        None
+    """
     # Reverse scaling for SHAP interpretation
     X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
     X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
@@ -939,15 +954,27 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     # Plot SHAP waterfall plot for the first validation sample
     print("Generating SHAP waterfall plot for the first validation sample...")
     shap.waterfall_plot(shap_values_val[0])
+    if save_folder:
+        save_path = f"{save_folder}/results/shap_waterfall.png"
+        plt.savefig(save_path, format='png')
+        print(f"SHAP waterfall plot saved at: {save_path}")
 
     # Plot SHAP summary plot for validation dataset
     print("Generating SHAP summary plot for validation dataset...")
     #shap.summary_plot(shap_values_val, X_val_original)
+    #if save_folder:
+    #    save_path = f"{save_folder}/results/shap_summary.png"
+    #    plt.savefig(save_path, format='png')
+    #    print(f"SHAP summary plot saved at: {save_path}")
 
     # Plot SHAP dependence plot for the most important feature
     top_feature = X_val_original.columns[np.argmax(shap_values_val.values.mean(axis=0))]
     print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
     #shap.dependence_plot(top_feature, shap_values_val.values, X_val_original)
+    #if save_folder:
+    #    save_path = f"{save_folder}/results/shap_dependence.png"
+    #    plt.savefig(save_path, format='png')
+    #    print(f"SHAP dependence plot saved at: {save_path}")
 
 
 # Updated function for SHAP with time interpolation
