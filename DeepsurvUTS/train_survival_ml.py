@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import requests
 from matplotlib import font_manager
 
-def plot_feat_imp(feature_names, feature_importances, top_n=10):
+def plot_feat_imp(feature_names, feature_importances, top_n=10, save_path=None):
     """
     Plots the top_n feature importances.
 
@@ -26,6 +26,7 @@ def plot_feat_imp(feature_names, feature_importances, top_n=10):
     - feature_names: list of strings, shape (n_features,)
     - feature_importances: array-like, shape (n_features,)
     - top_n: int, number of top features to plot
+    - save_path: str, optional, path to save the plot as a .png file
     """
     # Apply ggplot style
     plt.style.use('ggplot')
@@ -58,6 +59,11 @@ def plot_feat_imp(feature_names, feature_importances, top_n=10):
     plt.title('Top {} Feature Importances'.format(top_n), fontproperties=prop, fontsize=16)
     plt.gca().invert_yaxis()  # Invert y-axis to have the highest importance at the top
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
     return indices
     
@@ -253,12 +259,9 @@ def train_and_save_ML_models(estimators, train_x, train_y, test_x, test_y, cols_
 
         # If the model is cox_ph, plot and save feature importance
         if name == "cox_ph" and hasattr(estimator, "coef_"):
-            feat_importance_cox = plot_feat_imp(cols_x, estimator.coef_)
-            print(f"Feature importance plotted for {name}.")
-            # Save the feature importance plot
             feat_imp_path = os.path.join(results_folder, "cox_ph_feature_importance.png")
-            plt.savefig(feat_imp_path, format='png')
-            print(f"Feature importance plot saved at: {feat_imp_path}")
+            feat_importance_cox = plot_feat_imp(cols_x, estimator.coef_, save_path=feat_imp_path)
+            print(f"Feature importance plotted and saved for {name} at {feat_imp_path}.")
 
     # Convert scores dictionary to a DataFrame
     scores_df = pd.DataFrame.from_dict(scores, orient='index').reset_index()
