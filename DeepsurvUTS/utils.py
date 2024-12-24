@@ -10,6 +10,7 @@ import numpy as np
 import torchtuples as tt
 import json
 import warnings, requests
+import subprocess
 
 def getGoogleSeet(spreadsheet_id, outDir, outFile):
 
