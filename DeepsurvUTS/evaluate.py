@@ -687,7 +687,7 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     ]
 
     # Ensure models and colors align
-    color_map = {model_name: color_list[idx, model_name] for idx, model_name in enumerate(models_to_plot)}
+    color_map = {model_name: color_list[idx] for idx, model_name in enumerate(models_to_plot)}
 
     plt.figure(figsize=(8, 6))
 
