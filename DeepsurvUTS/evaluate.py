@@ -953,7 +953,7 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
 
     # Plot SHAP waterfall plot for the first validation sample
     print("Generating SHAP waterfall plot for the first validation sample...")
-    plt.figure()
+    #plt.figure()
     shap.plots.waterfall(shap_values_val[0])
     #shap.waterfall_plot(shap_values_val[0])
     if save_folder:
