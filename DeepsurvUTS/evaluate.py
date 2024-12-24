@@ -89,7 +89,7 @@ def plot_score(scores_df, col_var, models_name):
     
     return fig
 
-def plot_concordance_bar_chart(table_final, model_name_map, y_labels=('train', 'test'), width=0.35):
+def plot_concordance_bar_chart(table_final, model_name_map, y_labels=('train', 'test'), width=0.35, save_path=None):
     """
     Plot a bar chart of concordance index scores for train and test datasets.
 
@@ -98,6 +98,7 @@ def plot_concordance_bar_chart(table_final, model_name_map, y_labels=('train', '
         model_name_map (dict): Mapping of internal model names to display names.
         y_labels (tuple): Labels for the y values (default: ('train', 'test')).
         width (float): Width of the bars (default: 0.35).
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     # Map model names
     table_final['model_mapped'] = table_final['model'].map(model_name_map)
@@ -135,6 +136,11 @@ def plot_concordance_bar_chart(table_final, model_name_map, y_labels=('train', '
     # Show grid and plot
     ax.grid(axis='y', linestyle='--', alpha=0.7)
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 
@@ -374,13 +380,14 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
     return brier_curves
 
 
-def plot_brier_scores(df, highlight_mean=False, model_name_map=None):
+def plot_brier_scores(df, highlight_mean=False, model_name_map=None, save_path=None):
     """
     Bar plot of Brier scores for models from a DataFrame with additional options.
 
     Args:
         df (pd.DataFrame): DataFrame with models as the index and Brier scores as a column.
         highlight_mean (bool): If True, highlights specific models (e.g., 'deepsurv', 'deephit') in royal blue, others in dark grey.
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     # Check if df is not a DataFrame
     if not isinstance(df, pd.DataFrame):
@@ -422,6 +429,11 @@ def plot_brier_scores(df, highlight_mean=False, model_name_map=None):
     plt.title('Brier Scores for Each Model', fontsize=14)
     plt.grid(axis='y', linestyle='--', alpha=0.7)  # Optional: Add a horizontal grid for better readability
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 
@@ -467,7 +479,7 @@ def get_bier_score(df, y_train, y_test, survs, times, col_target="time2event", w
 
     return scores
 
-def plot_brier_curves_with_color_list(brier_curves, model_name_map=None):
+def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_path=None):
     """
     Plot Brier score curves using Matplotlib with y-axis in percentage format, markers for each data point,
     and a predefined list of colors. Optionally replace model names using a mapping.
@@ -477,6 +489,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None):
                                      The 'time' column contains the x-axis values.
         model_name_map (dict, optional): A dictionary to map original model names to display names.
                                          For example, {'deepsurv': 'DeepSurv', 'cox_ph': 'Cox Proportional Hazard'}.
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     plt.figure(figsize=(8, 6))
 
@@ -515,11 +528,16 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None):
 
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 
 
-def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve'):
+def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_path=None):
     """
     Plot Kaplan-Meier survival curve alongside survival curves from selected models with specified colors.
 
@@ -533,9 +551,7 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
         time_points (np.array): Time points for evaluating survival probabilities.
         model_name_map (dict, optional): Mapping of model names to display-friendly names.
         title (str): Title for the plot.
-
-    Returns:
-        None
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     # Kaplan-Meier estimator
     kmf = KaplanMeierFitter()
@@ -631,10 +647,15 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
     legend.get_frame().set_edgecolor('black')
 
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 
-def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve"):
+def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_path=None):
     """
     Plot calibration curves for models, ensuring consistent and repeatable results.
 
@@ -645,9 +666,7 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
         censored_col (str): Name of the column representing censoring status (1 = event, 0 = censored).
         threshold (float): Time threshold (e.g., 10 years).
         title (str): Title for the plot.
-
-    Returns:
-        None
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     np.random.seed(42)
     # Step 1: Create Actual Outcome Column
@@ -710,11 +729,16 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     legend.get_frame().set_edgecolor('black')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 
 
-def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year ROC Curve", model_name_map=None):
+def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year ROC Curve", model_name_map=None, save_path=None):
     """
     Plot ROC curves for models with support for mapped names, ensuring colors follow a specific order.
 
@@ -726,9 +750,7 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
         threshold (float): Time threshold (e.g., 10 years).
         title (str): Title for the plot.
         model_name_map (dict): Dictionary mapping internal model names to display-friendly names.
-
-    Returns:
-        None
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     # Step 1: Create Actual Outcome Column
     all_probs_df['Actual Outcome'] = ((all_probs_df[time_col] <= threshold) & (all_probs_df[censored_col] == 1)).astype(int)
@@ -781,11 +803,16 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     legend.get_frame().set_edgecolor('black')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 
 def plot_dca_results(df, models_to_plot=None, title="Decision Curve Analysis (DCA)", xlabel="Threshold Probability (%)",
-                     ylabel="Net Benefit", x_limits=None, y_limits=None, model_name_map=None):
+                     ylabel="Net Benefit", x_limits=None, y_limits=None, model_name_map=None, save_path=None):
     """
     Plot Decision Curve Analysis (DCA) results from a DataFrame with options for x-axis limits, y-axis limits,
     and model name mapping.
@@ -800,9 +827,7 @@ def plot_dca_results(df, models_to_plot=None, title="Decision Curve Analysis (DC
         x_limits (tuple, optional): Tuple specifying x-axis limits as (x_min, x_max).
         y_limits (tuple, optional): Tuple specifying y-axis limits as (y_min, y_max).
         model_name_map (dict, optional): Dictionary for mapping internal model names to display-friendly names.
-
-    Returns:
-        None
+        save_path (str, optional): Path to save the plot as a .png file.
     """
     plt.figure(figsize=(8, 5))  # Updated figsize
 
@@ -876,9 +901,12 @@ def plot_dca_results(df, models_to_plot=None, title="Decision Curve Analysis (DC
     # Add grid and adjust layout
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
+
+    # Save the plot if save_path is provided
+    if save_path:
+        plt.savefig(save_path, format='png')
+
     plt.show()
-
-
 
 def reverse_scaling(X_scaled, scaler, feature_names):
     X_original = scaler.inverse_transform(X_scaled)
