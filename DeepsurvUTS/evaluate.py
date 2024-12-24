@@ -1278,16 +1278,24 @@ def plot_shap_values_for_deepsurv4(model, X_train, y_train, X_val, scaler, cols_
 
     # Set up device and prepare data
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model.to(device)
+    is_torch_model = hasattr(model, 'to')
+    if is_torch_model:
+        model = model.to(device)
 
     @torch.no_grad()  # Disable gradient computation
     def batch_predict(X, batch_size=batch_size):
         """Batch prediction function to reduce memory usage"""
         all_preds = []
         for i in range(0, len(X), batch_size):
-            batch = torch.tensor(X[i:i + batch_size], dtype=torch.float32).to(device)
-            preds = model.predict_surv_df(batch)
-            all_preds.append(preds.mean(axis=0).values)
+            batch = X[i:i + batch_size]
+            if is_torch_model:
+                batch = torch.tensor(batch, dtype=torch.float32).to(device)
+                preds = model.predict_surv_df(batch)
+                preds = preds.mean(axis=0).values
+            else:
+                # For non-PyTorch models (e.g., CoxPH)
+                preds = model.predict(batch)
+            all_preds.append(preds)
         return np.concatenate(all_preds)
 
     def model_predict(X):
