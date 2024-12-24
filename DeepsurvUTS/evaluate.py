@@ -1251,3 +1251,81 @@ def plot_shap_values_for_deepsurv3(model, X_train, y_train, X_val, scaler, cols_
         print(f"SHAP dependence plot saved at: {save_path}")
 
     return explainer, X_val_original, shap_values_val
+
+def plot_shap_values_for_deepsurv4(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None, batch_size=32):
+    """
+    Optimized version of SHAP value computation and plotting for DeepSurv models.
+    Uses batch processing and precomputation to improve performance.
+    
+    Args:
+        model: Trained DeepSurv model
+        X_train: Training data
+        y_train: Training labels
+        X_val: Validation data
+        scaler: Feature scaler
+        cols_x: Feature column names
+        save_folder: Where to save plots
+        batch_size: Batch size for processing
+    """
+    import shap
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from tqdm import tqdm
+
+    print("Reversing scaling for interpretability...")
+    X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
+    X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
+
+    # Set up device and prepare data
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+
+    @torch.no_grad()  # Disable gradient computation
+    def batch_predict(X, batch_size=batch_size):
+        """Batch prediction function to reduce memory usage"""
+        all_preds = []
+        for i in range(0, len(X), batch_size):
+            batch = torch.tensor(X[i:i + batch_size], dtype=torch.float32).to(device)
+            preds = model.predict_surv_df(batch)
+            all_preds.append(preds.mean(axis=0).values)
+        return np.concatenate(all_preds)
+
+    def model_predict(X):
+        """Optimized prediction function for SHAP"""
+        return batch_predict(X)
+
+    # Initialize explainer with background data subset for speed
+    background_size = min(100, len(X_train_original))  # Use at most 100 background samples
+    background_indices = np.random.choice(len(X_train_original), background_size, replace=False)
+    print("Initializing SHAP explainer...")
+    explainer = shap.Explainer(model_predict, X_train_original.iloc[background_indices])
+
+    # Compute SHAP values with progress bar
+    print("Computing SHAP values...")
+    with tqdm(total=len(X_val_original)) as pbar:
+        shap_values_val = explainer(X_val_original, batch_size=batch_size)
+        pbar.update(len(X_val_original))
+
+    # Generate and save plots
+    print("Generating plots...")
+    plots = {
+        'waterfall': lambda: shap.plots.waterfall(shap_values_val[0], show=False),
+        'summary': lambda: shap.summary_plot(shap_values_val, X_val_original, show=False),
+        'dependence': lambda: shap.dependence_plot(
+            cols_x[np.argmax(np.abs(shap_values_val.values).mean(axis=0))],
+            shap_values_val.values,
+            X_val_original,
+            show=False
+        )
+    }
+
+    for plot_name, plot_func in plots.items():
+        plt.figure(figsize=(10, 6))
+        plot_func()
+        if save_folder:
+            save_path = f"{save_folder}/results/shap_{plot_name}.png"
+            plt.savefig(save_path, bbox_inches='tight', dpi=200)
+            print(f"Saved {plot_name} plot to {save_path}")
+        plt.close()
+
+    return explainer, X_val_original, shap_values_val
