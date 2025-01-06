@@ -241,19 +241,29 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
     """
     survs = {}
     integrated_scores = {}
+    print("Processing Kaplan-Meier and Random benchmarks...")
+
+    # Get the maximum observed time
+    max_time = min(
+        np.max(y_train[col_target]),
+        np.max(y_test[col_target])
+    )
+    
+    # Filter times to be within range
+    valid_times = times[times <= max_time]
 
     # Compute Kaplan-Meier benchmark
     km_func = StepFunction(
         *kaplan_meier_estimator(y_train["censored"].astype(bool), y_train[col_target])
     )
-    kaplan_meier_preds = np.tile(km_func(times), (len(X_test), 1))  # KM survival probabilities for all test samples
+    kaplan_meier_preds = np.tile(km_func(valid_times), (len(X_test), 1))  # KM survival probabilities for all test samples
 
     # Random survival probabilities benchmark
-    random_preds = 0.5 * np.ones((len(X_test), len(times)))
+    random_preds = 0.5 * np.ones((len(X_test), len(valid_times)))
 
     # Add Kaplan-Meier and Random to integrated_scores
-    integrated_scores["kaplan_meier"] = integrated_brier_score(y_train, y_test, kaplan_meier_preds, times)
-    integrated_scores["random"] = integrated_brier_score(y_train, y_test, random_preds, times)
+    integrated_scores["kaplan_meier"] = integrated_brier_score(y_train, y_test, kaplan_meier_preds, valid_times)
+    integrated_scores["random"] = integrated_brier_score(y_train, y_test, random_preds, valid_times)
 
     for name in models:
         print(f"Processing model: {name}")
