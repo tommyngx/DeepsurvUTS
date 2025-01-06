@@ -302,8 +302,9 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
 
         elif hasattr(models[name], 'predict_survival_function'):
             # For models with survival function predictions
-            survs[name] = models[name].predict_survival_function(X_test[cols_x])
+            #survs[name] = models[name].predict_survival_function(X_test[cols_x])
             #brier_scores = get_bier_score(X_test, y_train, y_test, survs[name], times, col_target, with_benchmark=True)
+            survs[name] = models[name].predict_survival_function(X_test_filtered[cols_x])
             brier_scores = get_bier_score(X_test_filtered, y_train, y_test_filtered, survs[name], times, col_target, with_benchmark=True)
             integrated_scores[name] = brier_scores['estimator']
 
