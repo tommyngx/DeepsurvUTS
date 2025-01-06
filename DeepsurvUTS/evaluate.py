@@ -241,7 +241,7 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
     """
     survs = {}
     integrated_scores = {}
-    print("Processing Kaplan-Meier and Random benchmarks...")
+    print("Processing Kaplan-Meier and Random benchmarks... ???? ")
 
     # Get the maximum observed time in the training set
     max_time_train = np.max(y_train[col_target])
