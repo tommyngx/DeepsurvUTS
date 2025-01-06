@@ -310,9 +310,9 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
 
         elif isinstance(models[name], FastSurvivalSVM):
             # For FastSurvivalSVM or similar models
-            risks = models[name].predict(X_test[cols_x])
+            risks = models[name].predict(X_test_filtered[cols_x])
             survs[name] = convert_risk_to_survival(risks, times)
-            brier_scores = get_bier_score(X_test, y_train, y_test, survs[name], times, col_target, with_benchmark=True)
+            brier_scores = get_bier_score(X_test_filtered, y_train, y_test_filtered, survs[name], times, col_target, with_benchmark=True)
             integrated_scores[name] = brier_scores['estimator']
 
         else:
