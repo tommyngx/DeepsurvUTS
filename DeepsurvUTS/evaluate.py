@@ -337,6 +337,14 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
     Returns:
         pd.DataFrame: DataFrame of Brier score curves for all models.
     """
+    # Get the maximum observed time in the training set
+    max_time_train = np.max(y_train["time2event"])
+
+    # Filter the test set to ensure times do not exceed the maximum time in the training set
+    valid_test_indices = y_test["time2event"] <= max_time_train
+    y_test_filtered = y_test[valid_test_indices]
+    X_test_filtered = X_test[valid_test_indices]
+
     brier_curves = None
 
     for i, name in enumerate(['gboost', 'cox_ph', 'deepsurv', 'deephit', 'svm', 'rsf']):
@@ -349,42 +357,42 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
 
         if name == 'deepsurv':
             # DeepSurv specific computation
-            survs = model.predict_surv_df(np.array(X_test[cols_x]).astype(np.float32))
-            ev = EvalSurv(survs, y_test["time2event"], y_test['censored'], censor_surv='km')
+            survs = model.predict_surv_df(np.array(X_test_filtered[cols_x]).astype(np.float32))
+            ev = EvalSurv(survs, y_test_filtered["time2event"], y_test_filtered['censored'], censor_surv='km')
             scores = ev.brier_score(times)
 
         elif name == 'deephit':
             # DeepHit specific computation
-            survs = model.predict_surv_df(np.array(X_test[cols_x]).astype(np.float32))
-            ev = EvalSurv(survs, y_test["time2event"], y_test['censored'], censor_surv='km')
+            survs = model.predict_surv_df(np.array(X_test_filtered[cols_x]).astype(np.float32))
+            ev = EvalSurv(survs, y_test_filtered["time2event"], y_test_filtered['censored'], censor_surv='km')
             scores = ev.brier_score(times)
 
         elif name == 'svm':
             # SVM (FastSurvivalSVM) specific computation
-            risks = model.predict(X_test[cols_x])
+            risks = model.predict(X_test_filtered[cols_x])
             survs = convert_risk_to_survival(risks, times)
             scores = []
             for t in times:
                 preds = [fn(t) for fn in survs]
-                _, score = brier_score(y_train, y_test, preds, t)
+                _, score = brier_score(y_train, y_test_filtered, preds, t)
                 scores.append(score[0])
 
         elif name == 'rsf':
             # Random Survival Forest specific computation
-            survs = model.predict_survival_function(X_test[cols_x])
+            survs = model.predict_survival_function(X_test_filtered[cols_x])
             scores = []
             for t in times:
                 preds = [fn(t) for fn in survs]
-                _, score = brier_score(y_train, y_test, preds, t)
+                _, score = brier_score(y_train, y_test_filtered, preds, t)
                 scores.append(score[0])
 
         else:
             # For 'gboost' and 'cox_ph' models
-            survs = model.predict_survival_function(X_test[cols_x])
+            survs = model.predict_survival_function(X_test_filtered[cols_x])
             scores = []
             for t in times:
                 preds = [fn(t) for fn in survs]
-                _, score = brier_score(y_train, y_test, preds, t)
+                _, score = brier_score(y_train, y_test_filtered, preds, t)
                 scores.append(score[0])
 
         # Create a DataFrame for this model
