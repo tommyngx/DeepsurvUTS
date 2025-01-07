@@ -78,9 +78,9 @@ def plot_performance_benchmark(df, summary_dir):
             continue
         color = colors(idx)
         model_df = df[df['model'] == model]
-        plt.plot(model_df['5risks_brier'], model_df['5risks_cindex'], 'o-', label=model, color=color)
-        plt.plot(model_df['11risks_brier'], model_df['11risks_cindex'], 'o-', color=color)
-        plt.plot(model_df['22risks_brier'], model_df['22risks_cindex'], 'o-', color=color)
+        plt.plot(model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten(),
+                 model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten(),
+                 'o-', label=model, color=color)
 
     plt.xlabel('Brier Score')
     plt.ylabel('C-index')
