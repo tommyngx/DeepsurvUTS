@@ -40,6 +40,7 @@ def plot_performance_benchmark(df):
     Args:
         df (pd.DataFrame): DataFrame containing the performance data.
     """
+    %matplotlib inline
     df.set_index('model', inplace=True)
     df.T.plot(kind='line', marker='o')
     plt.title('Performance Benchmark')
