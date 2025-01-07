@@ -20,6 +20,8 @@ def get_csv_files(base_dir, keywords):
                 if file == 'result.csv':
                     csv_path = os.path.join(root, file)
                     df = pd.read_csv(csv_path)
+                    folder_name = os.path.basename(os.path.dirname(root))
+                    df = df[['model', 'score_test']].rename(columns={'score_test': f'score_test_{folder_name}'})
                     dataframes.append(df)
                     print(f"Loaded DataFrame from {csv_path}")
     return dataframes
