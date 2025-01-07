@@ -27,7 +27,10 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
         net = tt.practical.MLPVanilla(
             in_features=in_features, out_features=out_features, num_nodes=num_nodes, **params)
         model = model_obj(net)
-    model.load_net(os.path.join(path, filename))
+    
+    # Load the model with weights_only=True and map to CPU if CUDA is not available
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.load_net(os.path.join(path, filename), weights_only=True, map_location=device)
 
     return model
 
