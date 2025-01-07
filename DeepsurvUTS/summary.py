@@ -50,10 +50,10 @@ def plot_performance_benchmark(df):
     plt.legend(title='Model')
     plt.grid(True)
     
-    # Label each marker with the corresponding risk
+    # Label each marker with the corresponding risk and score
     for line in ax.get_lines():
         for x, y in zip(line.get_xdata(), line.get_ydata()):
-            label = f"{df.columns[x]}"
+            label = f"{df.columns[x]} ({y:.2f})"
             ax.annotate(label, (x, y), textcoords="offset points", xytext=(0,10), ha='center')
     
     plt.savefig('/content/performance_benchmark.png')  # Save the plot as an image
