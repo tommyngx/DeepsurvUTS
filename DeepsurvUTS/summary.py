@@ -11,7 +11,7 @@ def get_csv_files(base_dir, keywords):
         keywords (list): List of keywords to match folder names.
 
     Returns:
-        list: List of DataFrames from the matched CSV files.
+        pd.DataFrame: Merged DataFrame from the matched CSV files.
     """
     dataframes = []
     for root, dirs, files in os.walk(base_dir):
@@ -21,10 +21,14 @@ def get_csv_files(base_dir, keywords):
                     csv_path = os.path.join(root, file)
                     df = pd.read_csv(csv_path)
                     folder_name = os.path.basename(os.path.dirname(root))
-                    df = df[['model', 'score_test']].rename(columns={'score_test': f'score_test_{folder_name}'})
+                    df = df[['model', 'score_test']].rename(columns={'score_test': f'{folder_name}'})
                     dataframes.append(df)
                     print(f"Loaded DataFrame from {csv_path}")
-    return dataframes
+    if dataframes:
+        merged_df = pd.concat(dataframes, axis=1)
+        return merged_df
+    else:
+        return pd.DataFrame()
 
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
@@ -35,9 +39,11 @@ def main():
     base_dir = args.folder
     keywords = args.keyword.split('_')
 
-    dataframes = get_csv_files(base_dir, keywords)
-    for df in dataframes:
-        print(df)
+    merged_df = get_csv_files(base_dir, keywords)
+    if not merged_df.empty:
+        print(merged_df)
+    else:
+        print("No matching CSV files found.")
 
 if __name__ == "__main__":
     main()
