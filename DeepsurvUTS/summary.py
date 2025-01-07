@@ -25,7 +25,9 @@ def get_csv_files(base_dir, keywords):
                     dataframes.append(df)
                     print(f"Loaded DataFrame from {csv_path}")
     if dataframes:
-        merged_df = pd.concat(dataframes, axis=1)
+        merged_df = dataframes[0]
+        for df in dataframes[1:]:
+            merged_df = pd.merge(merged_df, df, on='model', how='outer')
         return merged_df
     else:
         return pd.DataFrame()
