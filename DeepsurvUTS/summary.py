@@ -42,6 +42,7 @@ def plot_performance_benchmark(df):
         df (pd.DataFrame): DataFrame containing the performance data.
     """
     df.set_index('model', inplace=True)
+    df = df.reindex(sorted(df.columns, key=lambda x: int(x.split()[0])), axis=1)  # Sort columns
     ax = df.T.plot(kind='line', marker='o')
     plt.title('Performance Benchmark')
     plt.xlabel('Risks')
