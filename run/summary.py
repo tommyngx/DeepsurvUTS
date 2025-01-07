@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import argparse
 import matplotlib.pyplot as plt
+import cv2
+from google.colab.patches import cv2_imshow
 
 def get_csv_files(base_dir, keywords):
     """
@@ -34,12 +36,13 @@ def get_csv_files(base_dir, keywords):
     else:
         return pd.DataFrame()
 
-def plot_performance_benchmark(df):
+def plot_performance_benchmark(df, colab):
     """
     Plot a scatter plot of the performance benchmark from the DataFrame.
 
     Args:
         df (pd.DataFrame): DataFrame containing the performance data.
+        colab (bool): Whether to display the image using cv2_imshow for Google Colab.
     """
     df.set_index('model', inplace=True)
     df = df.reindex(sorted(df.columns, key=lambda x: int(x.split()[0])), axis=1)  # Sort columns
@@ -60,10 +63,15 @@ def plot_performance_benchmark(df):
     plt.savefig('/content/performance_benchmark.png')  # Save the plot as an image
     plt.show()
 
+    if colab:
+        img = cv2.imread('/content/performance_benchmark.png', cv2.IMREAD_UNCHANGED)
+        cv2_imshow(img)
+
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
+    parser.add_argument('--colab', type=bool, default=True, help="Whether to display the image using cv2_imshow for Google Colab.")
     args = parser.parse_args()
 
     base_dir = args.folder
@@ -72,7 +80,7 @@ def main():
     merged_df = get_csv_files(base_dir, keywords)
     if not merged_df.empty:
         print(merged_df)
-        plot_performance_benchmark(merged_df)
+        plot_performance_benchmark(merged_df, args.colab)
     else:
         print("No matching CSV files found.")
 
