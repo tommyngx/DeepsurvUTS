@@ -5,7 +5,7 @@ from utils import get_csv_files, plot_performance_benchmark
 from evaluate import load_models_and_results, get_integrated_brier_score
 import numpy as np
 
-def process_folders(base_dir, keywords, summary_dir):
+def process_folders_brier(base_dir, keywords, summary_dir):
     # Define columns for different sets
     cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
                'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
@@ -64,7 +64,7 @@ def process_folders(base_dir, keywords, summary_dir):
 
     # Create a DataFrame from the results dictionary
     results_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
-    print(results_df)
+    #print(results_df)
 
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
@@ -76,13 +76,25 @@ def main():
     keywords = args.keyword.split('_')
     summary_dir = os.path.join(base_dir, 'summary')
 
-    merged_df = get_csv_files(base_dir, keywords)
-    if not merged_df.empty:
-        # Rename '5 risks' to '5 risks_cindex'
-        merged_df = merged_df.rename(columns={'5 risks': '5risks_cindex', '11 risks': '11risks_cindex', '22 risks': '22risks_cindex'})
-        print(merged_df)
-        plot_performance_benchmark(merged_df, summary_dir)
-        process_folders(base_dir, keywords, summary_dir)
+    # Get cindex from CSV files
+    cindex_df = get_csv_files(base_dir, keywords)
+    if not cindex_df.empty:
+        # Rename columns for cindex
+        cindex_df = cindex_df.rename(columns={'5 risks': '5risks_cindex', '11 risks': '11risks_cindex', '22 risks': '22risks_cindex'})
+        #print(cindex_df)
+
+        # Process folders to get Brier scores
+        process_folders_brier(base_dir, keywords, summary_dir)
+
+        # Get Brier scores DataFrame
+        brier_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
+
+        # Merge cindex and Brier scores DataFrames on 'model'
+        final_df = pd.merge(cindex_df, brier_df, on='model')
+        print(final_df)
+
+        # Plot performance benchmark
+        plot_performance_benchmark(final_df, summary_dir)
     else:
         print("No matching CSV files found.")
 
