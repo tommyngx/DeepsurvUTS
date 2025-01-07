@@ -22,7 +22,8 @@ def get_csv_files(base_dir, keywords):
                     csv_path = os.path.join(root, file)
                     df = pd.read_csv(csv_path)
                     folder_name = os.path.basename(os.path.dirname(root))
-                    df = df[['model', 'score_test']].rename(columns={'score_test': f'{folder_name}'})
+                    risk_label = folder_name.split('_')[1] + ' risks'
+                    df = df[['model', 'score_test']].rename(columns={'score_test': risk_label})
                     dataframes.append(df)
                     print(f"Loaded DataFrame from {csv_path}")
     if dataframes:
@@ -41,12 +42,19 @@ def plot_performance_benchmark(df):
         df (pd.DataFrame): DataFrame containing the performance data.
     """
     df.set_index('model', inplace=True)
-    df.T.plot(kind='line', marker='o')
+    ax = df.T.plot(kind='line', marker='o')
     plt.title('Performance Benchmark')
-    plt.xlabel('Folders')
+    plt.xlabel('Risks')
     plt.ylabel('Score')
     plt.legend(title='Model')
     plt.grid(True)
+    
+    # Label each marker with the corresponding risk
+    for line in ax.get_lines():
+        for x, y in zip(line.get_xdata(), line.get_ydata()):
+            label = f"{df.columns[x]}"
+            ax.annotate(label, (x, y), textcoords="offset points", xytext=(0,10), ha='center')
+    
     plt.savefig('/content/performance_benchmark.png')  # Save the plot as an image
     plt.show()
 
