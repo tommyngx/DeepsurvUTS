@@ -49,7 +49,7 @@ def process_folders(base_dir, keywords, summary_dir):
 
             # Compute integrated Brier scores
             integrated_scores = get_integrated_brier_score(models_list, train_x, test_x, train_y, test_y, cols_x, times)
-            print(f"Integrated Brier Scores for {folder_path}: {integrated_scores}")
+            #print(f"Integrated Brier Scores for {folder_path}: {integrated_scores}")
 
             # Filter out 'kaplan_meier' and 'random' and store the results
             filtered_scores = {k: v for k, v in integrated_scores.items() if k not in ['kaplan_meier', 'random']}
@@ -78,6 +78,8 @@ def main():
 
     merged_df = get_csv_files(base_dir, keywords)
     if not merged_df.empty:
+        # Rename '5 risks' to '5 risks_cindex'
+        merged_df = merged_df.rename(columns={'5 risks': '5risks_cindex', '11 risks': '11risks_cindex', '22 risks': '22risks_cindex'})
         print(merged_df)
         plot_performance_benchmark(merged_df, summary_dir)
         process_folders(base_dir, keywords, summary_dir)
