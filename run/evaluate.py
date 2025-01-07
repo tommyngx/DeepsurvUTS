@@ -12,9 +12,6 @@ import torchtuples as tt
 from pycox.models import DeepHitSingle, CoxPH
 import pickle
 
-# Add MLPVanilla to the safe globals for torch.load
-torch.serialization.add_safe_globals([tt.practical.MLPVanilla])
-
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
     del params["n_nodes"]
@@ -30,10 +27,7 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
         net = tt.practical.MLPVanilla(
             in_features=in_features, out_features=out_features, num_nodes=num_nodes, **params)
         model = model_obj(net)
-    
-    # Load the model with weights_only=True and map to CPU if CUDA is not available
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.load_net(os.path.join(path, filename), weights_only=True, map_location=device)
+    model.load_net(os.path.join(path, filename))
 
     return model
 
