@@ -5,16 +5,13 @@ from utils import get_csv_files, plot_performance_benchmark
 from evaluate import load_models_and_results, get_integrated_brier_score
 import numpy as np
 
-def process_folders_brier(base_dir, keywords, summary_dir):
+def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
     # Define columns for different sets
     cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
                'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
                'renal', 'depression', 'diabetes', 'Tscore', 'protein', 'calcium', 'coffee']
     cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore' ] #'MedYes'
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
-
-    # Initialize a dictionary to store the results
-    results_dict = {'model': [], '5risks_brier': [], '11risks_brier': [], '22risks_brier': []}
 
     # Iterate through each folder and compute integrated Brier scores
     for folder in os.listdir(base_dir):
@@ -76,6 +73,9 @@ def main():
     keywords = args.keyword.split('_')
     summary_dir = os.path.join(base_dir, 'summary')
 
+    # Initialize a dictionary to store the results
+    results_dict = {'model': [], '5risks_brier': [], '11risks_brier': [], '22risks_brier': []}
+
     # Get cindex from CSV files
     cindex_df = get_csv_files(base_dir, keywords)
     if not cindex_df.empty:
@@ -84,7 +84,7 @@ def main():
         #print(cindex_df)
 
         # Process folders to get Brier scores
-        process_folders_brier(base_dir, keywords, summary_dir)
+        process_folders_brier(base_dir, keywords, summary_dir, results_dict)
 
         # Get Brier scores DataFrame
         brier_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
