@@ -14,36 +14,36 @@ def process_folders(base_dir, keywords, summary_dir):
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
 
     # Iterate through each folder and compute integrated Brier scores
-    for root, dirs, files in os.walk(base_dir):
-        if all(keyword in root for keyword in keywords):
-            path_dir = root
-            print(f"Processing folder: {path_dir}")
+    for folder in os.listdir(base_dir):
+        folder_path = os.path.join(base_dir, folder)
+        if os.path.isdir(folder_path) and all(keyword in folder for keyword in keywords):
+            print(f"Processing folder: {folder_path}")
 
             # Determine which column set to use based on folder name
-            if '22' in path_dir:
+            if '22' in folder:
                 cols_x = cols_22
-            elif '11' in path_dir:
+            elif '11' in folder:
                 cols_x = cols_11
-            elif '5' in path_dir:
+            elif '5' in folder:
                 cols_x = cols_5
             else:
                 raise ValueError("Folder name must contain '22', '11', or '5'.")
 
             # Load models and results
-            models_list, results_table = load_models_and_results(path_dir, cols_x)
+            models_list, results_table = load_models_and_results(folder_path, cols_x)
 
             # Define time points for evaluation
             times = np.arange(1, 20)
 
             # Load train and test data
-            train_x = pd.read_pickle(os.path.join(path_dir, 'data', 'train_x.pkl'))
-            test_x = pd.read_pickle(os.path.join(path_dir, 'data', 'test_x.pkl'))
-            train_y = pd.read_pickle(os.path.join(path_dir, 'data', 'train_y.pkl'))
-            test_y = pd.read_pickle(os.path.join(path_dir, 'data', 'test_y.pkl'))
+            train_x = pd.read_pickle(os.path.join(folder_path, 'data', 'train_x.pkl'))
+            test_x = pd.read_pickle(os.path.join(folder_path, 'data', 'test_x.pkl'))
+            train_y = pd.read_pickle(os.path.join(folder_path, 'data', 'train_y.pkl'))
+            test_y = pd.read_pickle(os.path.join(folder_path, 'data', 'test_y.pkl'))
 
             # Compute integrated Brier scores
             integrated_scores = get_integrated_brier_score(models_list, train_x, test_x, train_y, test_y, cols_x, times)
-            print(f"Integrated Brier Scores for {path_dir}: {integrated_scores}")
+            print(f"Integrated Brier Scores for {folder_path}: {integrated_scores}")
 
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
