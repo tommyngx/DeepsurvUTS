@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import argparse
+import matplotlib.pyplot as plt
 
 def get_csv_files(base_dir, keywords):
     """
@@ -32,6 +33,22 @@ def get_csv_files(base_dir, keywords):
     else:
         return pd.DataFrame()
 
+def plot_performance_benchmark(df):
+    """
+    Plot a line plot of the performance benchmark from the DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing the performance data.
+    """
+    df.set_index('model', inplace=True)
+    df.T.plot(kind='line', marker='o')
+    plt.title('Performance Benchmark')
+    plt.xlabel('Folders')
+    plt.ylabel('Score')
+    plt.legend(title='Model')
+    plt.grid(True)
+    plt.show()
+
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
@@ -44,6 +61,7 @@ def main():
     merged_df = get_csv_files(base_dir, keywords)
     if not merged_df.empty:
         print(merged_df)
+        plot_performance_benchmark(merged_df)
     else:
         print("No matching CSV files found.")
 
