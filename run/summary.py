@@ -71,8 +71,10 @@ def plot_performance_benchmark(df, summary_dir):
 
     # Plot cindex vs Brier scores
     plt.figure(figsize=(10, 6))
-    for risk in ['5', '11', '22']:
-        plt.scatter(df[f'{risk}risks_brier'], df[f'{risk}risks_cindex'], label=f'{risk} risks')
+    for model in df['model']:
+        plt.scatter(df[df['model'] == model]['5risks_brier'], df[df['model'] == model]['5risks_cindex'], label=f'{model} (5 risks)')
+        plt.scatter(df[df['model'] == model]['11risks_brier'], df[df['model'] == model]['11risks_cindex'], label=f'{model} (11 risks)')
+        plt.scatter(df[df['model'] == model]['22risks_brier'], df[df['model'] == model]['22risks_cindex'], label=f'{model} (22 risks)')
 
     plt.xlabel('Brier Score')
     plt.ylabel('C-index')
