@@ -10,7 +10,7 @@ def process_folders(base_dir, keywords, summary_dir):
     cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
                'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
                'renal', 'depression', 'diabetes', 'Tscore', 'protein', 'calcium', 'coffee']
-    cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore', 'MedYes']
+    cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore' ] #'MedYes'
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
 
     # Iterate through each folder and compute integrated Brier scores
