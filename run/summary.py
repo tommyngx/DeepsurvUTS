@@ -63,6 +63,28 @@ def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
     results_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
     #print(results_df)
 
+def plot_performance_benchmark(df, summary_dir):
+    import matplotlib.pyplot as plt
+
+    # Ensure the summary directory exists
+    os.makedirs(summary_dir, exist_ok=True)
+
+    # Plot cindex vs Brier scores
+    plt.figure(figsize=(10, 6))
+    for risk in ['5', '11', '22']:
+        plt.scatter(df[f'{risk}risks_brier'], df[f'{risk}risks_cindex'], label=f'{risk} risks')
+
+    plt.xlabel('Brier Score')
+    plt.ylabel('C-index')
+    plt.title('Performance Benchmark: C-index vs Brier Score')
+    plt.legend()
+    plt.grid(True)
+
+    # Save the plot
+    plot_path = os.path.join(summary_dir, 'performance_benchmark.png')
+    plt.savefig(plot_path)
+    plt.close()
+
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
