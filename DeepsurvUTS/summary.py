@@ -48,7 +48,7 @@ def plot_performance_benchmark(df):
     for model in df.index:
         x = df.loc[model]
         y = df.loc[model]
-        ax.scatter(x, y, label=model)
+        ax.plot(x, y, marker='o', label=model)  # Draw lines connecting dots
         for i, txt in enumerate(df.columns):
             ax.annotate(f"{txt} ({y[i]:.2f})", (x[i], y[i]), textcoords="offset points", xytext=(0,10), ha='center')
     
