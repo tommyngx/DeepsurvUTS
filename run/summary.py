@@ -56,9 +56,9 @@ def process_folders(base_dir, keywords, summary_dir):
             for model, score in filtered_scores.items():
                 if model not in results_dict['model']:
                     results_dict['model'].append(model)
-                    results_dict['5 risks'].append(None)
-                    results_dict['11 risks'].append(None)
-                    results_dict['22 risks'].append(None)
+                    results_dict['5risks_brier'].append(None)
+                    results_dict['11risks_brier'].append(None)
+                    results_dict['22risks_brier'].append(None)
                 model_index = results_dict['model'].index(model)
                 results_dict[risk_key][model_index] = score
 
