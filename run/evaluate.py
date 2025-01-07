@@ -12,8 +12,8 @@ import torchtuples as tt
 from pycox.models import DeepHitSingle, CoxPH
 import pickle
 
-# Add MLPVanilla to the safe globals for torch.load
-torch.serialization.add_safe_globals([tt.practical.MLPVanilla])
+# Add MLPVanilla and set to the safe globals for torch.load
+torch.serialization.add_safe_globals([tt.practical.MLPVanilla, set])
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
