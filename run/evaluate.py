@@ -10,6 +10,7 @@ from sksurv.svm import FastSurvivalSVM
 import json
 import torchtuples as tt
 from pycox.models import DeepHitSingle, CoxPH
+import pickle
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
