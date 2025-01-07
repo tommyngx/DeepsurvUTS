@@ -3,6 +3,7 @@ import pandas as pd
 import argparse
 from utils import get_csv_files, plot_performance_benchmark
 from evaluate import load_models_and_results, get_integrated_brier_score
+import numpy as np
 
 def process_folders(base_dir, keywords, summary_dir):
     # Define columns for different sets
