@@ -27,7 +27,9 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
         net = tt.practical.MLPVanilla(
             in_features=in_features, out_features=out_features, num_nodes=num_nodes, **params)
         model = model_obj(net)
-    model.load_net(os.path.join(path, filename))
+    
+    # Load the model with weights_only=True and map to CPU
+    model.load_net(os.path.join(path, filename), weights_only=True, map_location=torch.device('cpu'))
 
     return model
 
@@ -174,7 +176,7 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
     """
     survs = {}
     integrated_scores = {}
-    print("Processing Kaplan-Meier and Random benchmarks... ???? ")
+    #print("Processing Kaplan-Meier and Random benchmarks... ???? ")
 
     # Get the maximum observed time in the training set
     max_time_train = np.max(y_train[col_target])
@@ -201,7 +203,7 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
     integrated_scores["random"] = integrated_brier_score(y_train, y_test_filtered, random_preds, valid_times)
 
     for name in models:
-        print(f"Processing model: {name}")
+        #print(f"Processing model: {name}")
 
         if name == 'deepsurv':
             # DeepSurv specific computation
