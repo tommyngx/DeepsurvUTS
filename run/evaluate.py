@@ -12,6 +12,9 @@ import torchtuples as tt
 from pycox.models import DeepHitSingle, CoxPH
 import pickle
 
+# Add MLPVanilla to the safe globals for torch.load
+torch.serialization.add_safe_globals([tt.practical.MLPVanilla])
+
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
     del params["n_nodes"]
@@ -29,7 +32,12 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
         model = model_obj(net)
     
     # Load the model with weights_only=True and map to CPU
-    model.load_net(os.path.join(path, filename), weights_only=True, map_location=torch.device('cpu'))
+    try:
+        model.load_net(os.path.join(path, filename), weights_only=True, map_location=torch.device('cpu'))
+    except Exception as e:
+        print(f"Error loading {filename} with weights_only=True: {e}")
+        print("Attempting to load with weights_only=False...")
+        model.load_net(os.path.join(path, filename), weights_only=False, map_location=torch.device('cpu'))
 
     return model
 
