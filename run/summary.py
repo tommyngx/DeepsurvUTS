@@ -12,21 +12,21 @@ def process_folders(base_dir, keywords, summary_dir):
     cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore', 'MedYes']
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
 
-    # Determine which column set to use based on keywords
-    if '22' in keywords:
-        cols_x = cols_22
-    elif '11' in keywords:
-        cols_x = cols_11
-    elif '5' in keywords:
-        cols_x = cols_5
-    else:
-        raise ValueError("Invalid keyword. Must contain '22', '11', or '5'.")
-
     # Iterate through each folder and compute integrated Brier scores
     for root, dirs, files in os.walk(base_dir):
         if all(keyword in root for keyword in keywords):
             path_dir = root
             print(f"Processing folder: {path_dir}")
+
+            # Determine which column set to use based on folder name
+            if '22' in path_dir:
+                cols_x = cols_22
+            elif '11' in path_dir:
+                cols_x = cols_11
+            elif '5' in path_dir:
+                cols_x = cols_5
+            else:
+                raise ValueError("Folder name must contain '22', '11', or '5'.")
 
             # Load models and results
             models_list, results_table = load_models_and_results(path_dir, cols_x)
