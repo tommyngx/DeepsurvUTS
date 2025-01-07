@@ -13,8 +13,8 @@ def process_folders(base_dir, keywords, summary_dir):
     cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore' ] #'MedYes'
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
 
-    # Initialize a list to store the results
-    results_list = []
+    # Initialize a dictionary to store the results
+    results_dict = {'model': [], '5 risks': [], '11 risks': [], '22 risks': []}
 
     # Iterate through each folder and compute integrated Brier scores
     for folder in os.listdir(base_dir):
@@ -25,10 +25,13 @@ def process_folders(base_dir, keywords, summary_dir):
             # Determine which column set to use based on folder name
             if '22' in folder:
                 cols_x = cols_22
+                risk_key = '22 risks'
             elif '11' in folder:
                 cols_x = cols_11
+                risk_key = '11 risks'
             elif '5' in folder:
                 cols_x = cols_5
+                risk_key = '5 risks'
             else:
                 raise ValueError("Folder name must contain '22', '11', or '5'.")
 
@@ -50,10 +53,17 @@ def process_folders(base_dir, keywords, summary_dir):
 
             # Filter out 'kaplan_meier' and 'random' and store the results
             filtered_scores = {k: v for k, v in integrated_scores.items() if k not in ['kaplan_meier', 'random']}
-            results_list.append({'folder': folder, **filtered_scores})
+            for model, score in filtered_scores.items():
+                if model not in results_dict['model']:
+                    results_dict['model'].append(model)
+                    results_dict['5 risks'].append(None)
+                    results_dict['11 risks'].append(None)
+                    results_dict['22 risks'].append(None)
+                model_index = results_dict['model'].index(model)
+                results_dict[risk_key][model_index] = score
 
-    # Create a DataFrame from the results list
-    results_df = pd.DataFrame(results_list)
+    # Create a DataFrame from the results dictionary
+    results_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
     print(results_df)
 
 def main():
