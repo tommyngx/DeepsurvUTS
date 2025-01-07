@@ -13,6 +13,9 @@ def process_folders(base_dir, keywords, summary_dir):
     cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore' ] #'MedYes'
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
 
+    # Initialize a list to store the results
+    results_list = []
+
     # Iterate through each folder and compute integrated Brier scores
     for folder in os.listdir(base_dir):
         folder_path = os.path.join(base_dir, folder)
@@ -44,6 +47,14 @@ def process_folders(base_dir, keywords, summary_dir):
             # Compute integrated Brier scores
             integrated_scores = get_integrated_brier_score(models_list, train_x, test_x, train_y, test_y, cols_x, times)
             print(f"Integrated Brier Scores for {folder_path}: {integrated_scores}")
+
+            # Filter out 'kaplan_meier' and 'random' and store the results
+            filtered_scores = {k: v for k, v in integrated_scores.items() if k not in ['kaplan_meier', 'random']}
+            results_list.append({'folder': folder, **filtered_scores})
+
+    # Create a DataFrame from the results list
+    results_df = pd.DataFrame(results_list)
+    print(results_df)
 
 def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
