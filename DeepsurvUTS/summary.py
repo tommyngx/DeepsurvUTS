@@ -47,6 +47,7 @@ def plot_performance_benchmark(df):
     plt.ylabel('Score')
     plt.legend(title='Model')
     plt.grid(True)
+    plt.savefig('/content/performance_benchmark.png')  # Save the plot as an image
     plt.show()
 
 def main():
