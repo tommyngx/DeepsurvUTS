@@ -30,8 +30,9 @@ def get_csv_files(base_dir, keywords):
         merged_df = dataframes[0]
         for df in dataframes[1:]:
             merged_df = pd.merge(merged_df, df, on='model', how='outer')
-        # Sort columns
-        merged_df = merged_df.reindex(sorted(merged_df.columns, key=lambda x: int(x.split()[0])), axis=1)
+        # Sort columns, excluding 'model'
+        sorted_columns = sorted(merged_df.columns.drop('model'), key=lambda x: int(x.split()[0]))
+        merged_df = merged_df[['model'] + sorted_columns]
         return merged_df
     else:
         return pd.DataFrame()
