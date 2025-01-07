@@ -74,10 +74,13 @@ def plot_performance_benchmark(df, summary_dir):
     colors = plt.cm.get_cmap('tab10', len(df['model'].unique()))
 
     for idx, model in enumerate(df['model'].unique()):
+        if model == 'svm':
+            continue
         color = colors(idx)
-        plt.scatter(df[df['model'] == model]['5risks_brier'], df[df['model'] == model]['5risks_cindex'], label=f'{model} (5 risks)', color=color)
-        plt.scatter(df[df['model'] == model]['11risks_brier'], df[df['model'] == model]['11risks_cindex'], label=f'{model} (11 risks)', color=color)
-        plt.scatter(df[df['model'] == model]['22risks_brier'], df[df['model'] == model]['22risks_cindex'], label=f'{model} (22 risks)', color=color)
+        model_df = df[df['model'] == model]
+        plt.plot(model_df['5risks_brier'], model_df['5risks_cindex'], 'o-', label=model, color=color)
+        plt.plot(model_df['11risks_brier'], model_df['11risks_cindex'], 'o-', color=color)
+        plt.plot(model_df['22risks_brier'], model_df['22risks_cindex'], 'o-', color=color)
 
     plt.xlabel('Brier Score')
     plt.ylabel('C-index')
