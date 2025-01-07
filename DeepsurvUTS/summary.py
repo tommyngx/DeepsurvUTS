@@ -36,26 +36,27 @@ def get_csv_files(base_dir, keywords):
 
 def plot_performance_benchmark(df):
     """
-    Plot a line plot of the performance benchmark from the DataFrame.
+    Plot a scatter plot of the performance benchmark from the DataFrame.
 
     Args:
         df (pd.DataFrame): DataFrame containing the performance data.
     """
     df.set_index('model', inplace=True)
     df = df.reindex(sorted(df.columns, key=lambda x: int(x.split()[0])), axis=1)  # Sort columns
-    ax = df.T.plot(kind='line', marker='o')
+    
+    fig, ax = plt.subplots()
+    for model in df.index:
+        x = df.loc[model]
+        y = df.loc[model]
+        ax.scatter(x, y, label=model)
+        for i, txt in enumerate(df.columns):
+            ax.annotate(f"{txt} ({y[i]:.2f})", (x[i], y[i]), textcoords="offset points", xytext=(0,10), ha='center')
+    
     plt.title('Performance Benchmark')
-    plt.xlabel('Risks')
+    plt.xlabel('Score')
     plt.ylabel('Score')
     plt.legend(title='Model')
     plt.grid(True)
-    
-    # Label each marker with the corresponding risk and score
-    for line in ax.get_lines():
-        for x, y in zip(line.get_xdata(), line.get_ydata()):
-            label = f"{df.columns[x]} ({y:.2f})"
-            ax.annotate(label, (x, y), textcoords="offset points", xytext=(0,10), ha='center')
-    
     plt.savefig('/content/performance_benchmark.png')  # Save the plot as an image
     plt.show()
 
