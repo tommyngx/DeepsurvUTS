@@ -33,7 +33,7 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
     
     # Load the model with weights_only=True and map to CPU
     try:
-        model.load_net(os.path.join(path, filename), weights_only=True, map_location=torch.device('cpu'))
+        model.load_net(os.path.join(path, filename), weights_only=False, map_location=torch.device('cpu'))
     except Exception as e:
         print(f"Error loading {filename} with weights_only=True: {e}")
         print("Attempting to load with weights_only=False...")
