@@ -14,7 +14,7 @@ def process_folders(base_dir, keywords, summary_dir):
     cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
 
     # Initialize a dictionary to store the results
-    results_dict = {'model': [], '5 risks': [], '11 risks': [], '22 risks': []}
+    results_dict = {'model': [], '5risks_brier': [], '11risks_brier': [], '22risks_brier': []}
 
     # Iterate through each folder and compute integrated Brier scores
     for folder in os.listdir(base_dir):
@@ -25,13 +25,13 @@ def process_folders(base_dir, keywords, summary_dir):
             # Determine which column set to use based on folder name
             if '22' in folder:
                 cols_x = cols_22
-                risk_key = '22 risks'
+                risk_key = '22risks_brier'
             elif '11' in folder:
                 cols_x = cols_11
-                risk_key = '11 risks'
+                risk_key = '11risks_brier'
             elif '5' in folder:
                 cols_x = cols_5
-                risk_key = '5 risks'
+                risk_key = '5risks_brier'
             else:
                 raise ValueError("Folder name must contain '22', '11', or '5'.")
 
