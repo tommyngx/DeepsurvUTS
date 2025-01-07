@@ -70,7 +70,7 @@ def plot_performance_benchmark(df, summary_dir):
     os.makedirs(summary_dir, exist_ok=True)
 
     # Plot cindex vs Brier scores
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
     colors = plt.cm.get_cmap('tab10', len(df['model'].unique()))
 
     for idx, model in enumerate(df['model'].unique()):
@@ -78,15 +78,15 @@ def plot_performance_benchmark(df, summary_dir):
             continue
         color = colors(idx)
         model_df = df[df['model'] == model]
-        plt.plot(model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten(),
-                 model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten(),
-                 'o-', label=model, color=color)
+        x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
+        y = model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten()
+        ax.plot(x, y, marker='o', label=model, color=color)
 
-    plt.xlabel('Brier Score')
-    plt.ylabel('C-index')
-    plt.title('Performance Benchmark: C-index vs Brier Score')
-    plt.legend()
-    plt.grid(True)
+    ax.set_xlabel('Brier Score')
+    ax.set_ylabel('C-index')
+    ax.set_title('Performance Benchmark: C-index vs Brier Score')
+    ax.legend()
+    ax.grid(True)
 
     # Save the plot
     plot_path = os.path.join(summary_dir, 'performance_benchmark.png')
