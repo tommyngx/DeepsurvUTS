@@ -381,8 +381,8 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
 
     # Ensure the number of models does not exceed the color list length
     models = [m for m in brier_curves.columns if m != 'time']
-    if len(models) > len(color_list):
-        raise ValueError(f"Number of models ({len(models)}) exceeds available colors ({len(color_list)})")
+    #if len(models) > len(color_list):
+    #    raise ValueError(f"Number of models ({len(models)}) exceeds available colors ({len(color_list)})")
 
     # Plot each column (except 'time') against the time column with assigned colors
     for idx, m in enumerate(models):
