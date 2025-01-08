@@ -7,7 +7,7 @@ from evaluate import load_models_and_results, get_brier_curves
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 
-def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, color_list=None, font_prop=None, save_folder=None):
+def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, color_list=None, font_prop=None, save_folder=None, show_plot=False):
     plt.figure(figsize=(8, 6))
 
     # Ensure the number of models does not exceed the color list length
@@ -48,7 +48,11 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, color_l
         save_path = f"{save_folder}/brier_curves.png"
         plt.savefig(save_path, format='png')
 
-    plt.show()
+    # Show the plot if show_plot is True
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
 
 def process_folder_brier(base_dir, keywords, ignore_svm=True):
     # Load configuration
@@ -61,7 +65,7 @@ def process_folder_brier(base_dir, keywords, ignore_svm=True):
     for folder in os.listdir(base_dir):
         folder_path = os.path.join(base_dir, folder)
         if os.path.isdir(folder_path) and all(keyword in folder for keyword in keywords):
-            print(f"Processing folder: {folder_path}")
+            #print(f"Processing folder: {folder_path}")
 
             # Determine which column set to use based on folder name
             if '22' in folder:
@@ -106,11 +110,13 @@ def main():
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
     parser.add_argument('--ignore_svm', action='store_true', default=True, help="Ignore the SVM model.")
+    parser.add_argument('--show_plot', action='store_true', default=False, help="Show the plot after saving.")
     args = parser.parse_args()
 
     base_dir = args.folder
     keywords = args.keyword.split('_')
     ignore_svm = args.ignore_svm
+    show_plot = args.show_plot
 
     process_folder_brier(base_dir, keywords, ignore_svm)
 

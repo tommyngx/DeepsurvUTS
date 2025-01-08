@@ -11,7 +11,7 @@ from evaluate import load_models_and_results, generate_all_probabilities
 # Load configuration
 config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
 
-def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_folder=None):
+def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_folder=None, show_plot=False):
     """
     Plot calibration curves for models, ensuring consistent and repeatable results.
 
@@ -73,7 +73,11 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
         save_path = f"{save_folder}/calibration_curve.png"
         plt.savefig(save_path, format='png')
 
-    plt.show()
+    # Show the plot if show_plot is True
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
 
 def process_folder_calibration(base_dir, keywords, threshold, save_folder, ignore_svm=True):
 
