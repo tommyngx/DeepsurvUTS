@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import argparse
 import yaml
-from utils import get_csv_files, plot_performance_benchmark, loading_config
+from utils import get_csv_files, loading_config
 from evaluate import load_models_and_results, get_integrated_brier_score
 import numpy as np
 import matplotlib.pyplot as plt
