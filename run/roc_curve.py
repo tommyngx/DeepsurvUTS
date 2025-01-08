@@ -46,6 +46,7 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     plt.figure(figsize=(8, 6))
 
     # Step 2: Loop through models and plot ROC curves
+    handles = []
     for model_name in models_to_plot:
         if model_name in all_probs_df.columns:
             # Map model name if mapping is provided
