@@ -39,8 +39,8 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
 
     # Define the color list
     color_list = [
-        "#2ca02c", "#8c564b", "#9467bd", "#d62728", "#ff7f0e",
-        "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+        "#2ca02c", "#8c564b", "#9467bd", "#d62728","#e377c2", "#ff7f0e",
+         "#7f7f7f", "#bcbd22", "#17becf"
     ]
 
     # Ensure models and colors align
