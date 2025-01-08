@@ -71,7 +71,7 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     # Save the plot if save_folder is provided
     if save_folder:
         keyword_str = keyword.replace('_', ' ') if keyword else "plot"
-        save_path = f"{save_folder}/calibration_curve_{keyword_str}.png"
+        save_path = f"{save_folder}/calibration_curve_{keyword}.png"
         plt.savefig(save_path, format='png')
 
     # Show the plot if show_plot is True

@@ -47,7 +47,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, color_l
     # Save the plot if save_folder is provided
     if save_folder:
         keyword_str = keyword.replace('_', ' ') if keyword else "plot"
-        save_path = f"{save_folder}/brier_curves_{keyword_str}.png"
+        save_path = f"{save_folder}/brier_curves_{keyword}.png"
         plt.savefig(save_path, format='png')
 
     # Show the plot if show_plot is True
