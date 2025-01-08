@@ -81,10 +81,10 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
-    # Add markers to the legend only
-    for handle in legend.legendHandles:
-        handle.set_marker('o')
-        handle.set_linestyle('-')
+    # Add markers with lines to the legend
+    #for handle in legend.legendHandles:
+    #    handle.set_marker('o')
+    #    handle.set_linestyle('-')
 
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
