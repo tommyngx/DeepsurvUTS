@@ -9,7 +9,7 @@ from utils import loading_config
 from evaluate import load_models_and_results
 from sksurv.functions import StepFunction
 
-def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None, show_plot=False):
+def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None, show_plot=False, keywords=None):
     """
     Plot Kaplan-Meier survival curve alongside survival curves from selected models with specified colors.
 
@@ -24,6 +24,8 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
         model_name_map (dict, optional): Mapping of model names to display-friendly names.
         title (str): Title for the plot.
         save_folder (str, optional): Folder to save the plot as a .png file.
+        show_plot (bool, optional): Whether to show the plot.
+        keywords (list, optional): List of keywords for naming the saved plot file.
     """
     # Kaplan-Meier estimator
     kmf = KaplanMeierFitter()
@@ -121,7 +123,7 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
     plt.tight_layout()
 
     # Save the plot if save_folder is provided
-    if save_folder:
+    if save_folder and keywords:
         save_path = f"{save_folder}/kaplan_{'_'.join(keywords)}.png"
         plt.savefig(save_path, format='png')
 
@@ -168,7 +170,7 @@ def process_folder_kaplan(base_dir, keywords):
                 y_time=test_y['time2event'], y_censored=test_y['censored'],
                 models=models_list, X_test=test_x, models_to_plot=models_to_plot,
                 cols_x=cols_x, time_points=time_points, model_name_map=model_name_map,
-                title=f"Kaplan-Meier vs Models Survival Curve ({folder})", save_folder=summary_dir
+                title=f"Kaplan-Meier vs Models Survival Curve ({folder})", save_folder=summary_dir, keywords=keywords
             )
 
 def main():
