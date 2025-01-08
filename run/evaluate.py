@@ -374,7 +374,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
 
     # Define the color list
     color_list = [
-        "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+        "#2ca02c","#ff7f0e",  "#d62728", "#9467bd", "#8c564b",
         "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
     ]
     #color_list = plt.get_cmap('Dark2')
