@@ -138,7 +138,7 @@ def process_folder_calibration(base_dir, keywords, threshold, save_folder):
             time_point = 10  # Time point for analysis
             all_probs_df = generate_all_probabilities(models_list, test_x, test_y['time2event'], test_y['censored'], time_point, cols_x)
     
-    print(all_probs_df)
+    #print(all_probs_df)
     # Plot the calibration curve
     #models_to_plot = all_probs_df['model'].unique()
     models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf','svm']
