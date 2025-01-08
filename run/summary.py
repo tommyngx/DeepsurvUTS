@@ -76,6 +76,14 @@ def plot_performance_benchmark(df, summary_dir):
         f.write(response.content)
     font_prop = FontProperties(fname=font_path)
 
+    # Model name mapping
+    model_name_map = {
+        'deepsurv': 'DeepSurv', 'deephit': 'DeepHit',
+        'cox_ph': 'CoxPH', 'gboost': 'GradientBoosting',
+        'svm': 'SVM-Surv', 'rsf': "RSurvivalForest", 'kaplan_meier': 'KaplanMeier',
+        'random': 'Random'
+    }
+
     # Ensure the summary directory exists
     os.makedirs(summary_dir, exist_ok=True)
 
@@ -91,7 +99,7 @@ def plot_performance_benchmark(df, summary_dir):
         model_df = df[df['model'] == model]
         x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
         y = model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten()
-        ax.plot(x, y, marker=marker, label=model, color=color)
+        ax.plot(x, y, marker=marker, label=model_name_map.get(model, model), color=color)
         for i, txt in enumerate(['5', '11', '22']):
             ax.annotate(txt, (x[i], y[i] + 0.001), fontproperties=font_prop)  # Move annotation higher
 
