@@ -85,7 +85,7 @@ def plot_performance_benchmark(df, summary_dir, keywords, use_custom_colors=True
     ax.set_xlabel('Brier Score', fontproperties=font_prop, fontsize=14)
     ax.set_ylabel('C-index', fontproperties=font_prop, fontsize=14)
     keyword_str = ' '.join(keywords).replace('_', ' ')
-    ax.set_title(f'Performance Benchmark: ({keyword_str})', fontproperties=font_prop, fontsize=16, pad=10)
+    ax.set_title(f'Performance Benchmark ({keyword_str})', fontproperties=font_prop, fontsize=16, pad=10)
     legend = ax.legend(prop=font_prop, loc='lower left', fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
