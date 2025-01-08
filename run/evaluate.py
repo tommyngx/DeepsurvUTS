@@ -25,7 +25,8 @@ font_path = 'Poppins.ttf'
 response = requests.get(font_url)
 with open(font_path, 'wb') as f:
     f.write(response.content)
-font_prop = FontProperties(fname=font_path)
+# Set the custom font with size
+font_prop = FontProperties(fname=font_path, size=19)
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
@@ -393,7 +394,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
         plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
 
     # Customize the plot
-    plt.title("Brier Score Curves", fontsize=19, fontproperties=font_prop, pad=10)
+    plt.title("Brier Score Curves", fontproperties=font_prop, pad=20)
     plt.xlabel("Time (years)", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Brier Score (%)", fontsize=14, fontproperties=font_prop)
     plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
