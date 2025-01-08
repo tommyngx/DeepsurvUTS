@@ -1,6 +1,9 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import yaml
+import requests
+from matplotlib.font_manager import FontProperties
 
 def get_csv_files(base_dir, keywords):
     """
@@ -36,32 +39,30 @@ def get_csv_files(base_dir, keywords):
     else:
         return pd.DataFrame()
 
-def plot_performance_benchmark(df, summary_dir):
-    """
-    Plot a scatter plot of the performance benchmark from the DataFrame.
 
-    Args:
-        df (pd.DataFrame): DataFrame containing the performance data.
-        summary_dir (str): Directory to save the summary image.
-    """
-    df.set_index('model', inplace=True)
-    
-    fig, ax = plt.subplots()
-    for model in df.index:
-        x = df.loc[model]
-        y = df.loc[model]
-        ax.plot(x, y, marker='o', label=model)  # Draw lines connecting dots
-        for i, txt in enumerate(df.columns):
-            ax.annotate(f"{txt} ({y.iloc[i]:.2f})", (x.iloc[i], y.iloc[i]), textcoords="offset points", xytext=(0,10), ha='center')
-    
-    plt.title('Performance Benchmark')
-    plt.xlabel('Score')
-    plt.ylabel('Score')
-    plt.legend(title='Model')
-    plt.grid(True)
-    
-    # Create summary directory if it does not exist
-    os.makedirs(summary_dir, exist_ok=True)
-    image_path = os.path.join(summary_dir, 'performance_benchmark.png')
-    plt.savefig(image_path)  # Save the plot as an image
-    plt.show()
+
+def loading_config():
+    # Load configuration from YAML file
+    with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
+        config = yaml.safe_load(file)
+
+    # Set font properties
+    font_url = config['font']['url']
+    font_path = config['font']['path']
+    response = requests.get(font_url)
+    with open(font_path, 'wb') as f:
+        f.write(response.content)
+    font_prop = FontProperties(fname=font_path, size=config['font']['size'])
+
+    # Model name mapping
+    model_name_map = config['model_name_map']
+
+    # Color list
+    color_list = config['color_list']
+
+    # Column sets
+    cols_22 = config['cols_22']
+    cols_11 = config['cols_11']
+    cols_5 = config['cols_5']
+
+    return config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5

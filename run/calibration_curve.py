@@ -3,29 +3,9 @@ import pandas as pd
 import numpy as np
 import argparse
 import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
-import requests
-import yaml
+from utils import loading_config
 from sklearn.calibration import calibration_curve
 from evaluate import load_models_and_results, generate_all_probabilities
-
-# Load configuration from YAML file
-with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
-    config = yaml.safe_load(file)
-
-# Set font properties
-font_url = config['font']['url']
-font_path = config['font']['path']
-response = requests.get(font_url)
-with open(font_path, 'wb') as f:
-    f.write(response.content)
-font_prop = FontProperties(fname=font_path, size=config['font']['size'])
-
-# Model name mapping
-model_name_map = config['model_name_map']
-
-# Color list
-color_list = config['color_list']
 
 def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_folder=None):
     """
@@ -92,12 +72,8 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     plt.show()
 
 def process_folder_calibration(base_dir, keywords, threshold, save_folder, ignore_svm=True):
-    # Define columns for different sets
-    cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
-               'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
-               'renal', 'depression', 'diabetes', 'Tscore', 'protein', 'calcium', 'coffee']
-    cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore']
-    cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
+    # Load configuration
+    config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
 
     # Initialize a DataFrame to store the results
     all_probs_df = pd.DataFrame()

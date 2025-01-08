@@ -2,39 +2,17 @@ import os
 import pandas as pd
 import argparse
 import yaml
-from utils import get_csv_files, plot_performance_benchmark
+from utils import get_csv_files, plot_performance_benchmark, loading_config
 from evaluate import load_models_and_results, get_integrated_brier_score
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import requests
 
-# Load configuration from YAML file
-with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
-    config = yaml.safe_load(file)
-
-# Set font properties
-font_url = config['font']['url']
-font_path = config['font']['path']
-response = requests.get(font_url)
-with open(font_path, 'wb') as f:
-    f.write(response.content)
-font_prop = FontProperties(fname=font_path, size=config['font']['size'])
-
-# Model name mapping
-model_name_map = config['model_name_map']
-
-# Color list
-color_list = config['color_list']
+# Load configuration
+config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
 
 def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
-    # Define columns for different sets
-    cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
-               'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
-               'renal', 'depression', 'diabetes', 'Tscore', 'protein', 'calcium', 'coffee']
-    cols_11 = ['age', 'weight', 'height', 'fx50', 'smoke', 'drink', 'rheumatoid', 'Tscore' ] #'MedYes'
-    cols_5 = ['age', 'weight', 'no_falls', 'fx50', 'Tscore']
-
     # Iterate through each folder and compute integrated Brier scores
     for folder in os.listdir(base_dir):
         folder_path = os.path.join(base_dir, folder)

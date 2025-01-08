@@ -21,14 +21,6 @@ from matplotlib.font_manager import FontProperties
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
     config = yaml.safe_load(file)
 
-# Set font properties
-font_url = config['font']['url']
-font_path = config['font']['path']
-response = requests.get(font_url)
-with open(font_path, 'wb') as f:
-    f.write(response.content)
-font_prop = FontProperties(fname=font_path, size=config['font']['size'])
-
 # Model name mapping
 model_name_map = config['model_name_map']
 
@@ -368,60 +360,6 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
         brier_curves = scores_df if brier_curves is None else brier_curves.merge(scores_df, on='time')
 
     return brier_curves
-
-def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_folder=None):
-    """
-    Plot Brier score curves using Matplotlib with y-axis in percentage format, markers for each data point,
-    and a predefined list of colors. Optionally replace model names using a mapping.
-
-    Args:
-        brier_curves (pd.DataFrame): DataFrame containing Brier scores over time.
-                                     The 'time' column contains the x-axis values.
-        model_name_map (dict, optional): A dictionary to map original model names to display names.
-                                         For example, {'deepsurv': 'DeepSurv', 'cox_ph': 'Cox Proportional Hazard'}.
-        save_folder (str, optional): Folder to save the plot as a .png file.
-    """
-    plt.figure(figsize=(8, 6))
-
-    # Ensure the number of models does not exceed the color list length
-    models = [m for m in brier_curves.columns if m != 'time']
-
-    # Plot each column (except 'time') against the time column with assigned colors
-    for idx, m in enumerate(models):
-        color = color_list[idx % len(color_list)]  # Assign color from the list
-
-        # Use model_name_map if provided, otherwise use original names
-        display_name = model_name_map.get(m, m) if model_name_map else m
-
-        # Plot the curve and scatter points
-        plt.plot(brier_curves['time'], brier_curves[m] * 100, label=display_name, linestyle='-', color=color)
-        plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
-
-    # Customize the plot
-    plt.title("Brier Score Curves",  fontproperties=font_prop, fontsize=16, pad=10)
-    plt.xlabel("Time (years)", fontsize=14, fontproperties=font_prop)
-    plt.ylabel("Brier Score (%)", fontsize=14, fontproperties=font_prop)
-    plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
-
-    # Customize legend with a white background
-    legend = plt.legend(prop=font_prop, fontsize=13)
-    legend.get_frame().set_facecolor('white')
-    legend.get_frame().set_edgecolor('black')
-
-    # Add lines and markers to the legend
-    for handle in legend.legendHandles:
-        handle.set_linestyle('-')
-        handle.set_marker('o')
-
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.tight_layout()
-
-    # Save the plot if save_folder is provided
-    if save_folder:
-        save_path = f"{save_folder}/brier_curves.png"
-        plt.savefig(save_path, format='png')
-
-    plt.show()
 
 def generate_all_probabilities(models, X_test, y_time, y_censored, time_point, cols_x):
     """

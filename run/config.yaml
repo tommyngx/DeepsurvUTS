@@ -23,3 +23,44 @@ color_list:
   - "#7f7f7f"
   - "#bcbd22"
   - "#17becf"
+
+cols_22:
+  - age
+  - education
+  - weight
+  - height
+  - smoke
+  - drink
+  - no_falls
+  - fx50
+  - physical
+  - hypertension
+  - copd
+  - parkinson
+  - cancer
+  - rheumatoid
+  - cvd
+  - renal
+  - depression
+  - diabetes
+  - Tscore
+  - protein
+  - calcium
+  - coffee
+
+cols_11:
+  - age
+  - weight
+  - height
+  - fx50
+  - smoke
+  - drink
+  - rheumatoid
+  - Tscore
+
+cols_5:
+  - age
+  - weight
+  - no_falls
+  - fx50
+  - Tscore
