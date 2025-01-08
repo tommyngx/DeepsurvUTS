@@ -81,14 +81,13 @@ def plot_performance_benchmark(df, summary_dir):
 
     # Plot cindex vs Brier scores
     fig, ax = plt.subplots(figsize=(10, 8))
-    colors = plt.colormaps.get_cmap('tab10', len(df['model'].unique()))
-    markers = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'h']
+    colors = plt.get_cmap('tab10')
 
     for idx, model in enumerate(df['model'].unique()):
         if model == 'svm':
             continue
-        color = colors(idx)
-        marker = markers[idx % len(markers)]
+        color = colors(idx / len(df['model'].unique()))
+        marker = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'h'][idx % 10]
         model_df = df[df['model'] == model]
         x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
         y = model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten()
