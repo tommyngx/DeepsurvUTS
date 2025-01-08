@@ -87,7 +87,7 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
             mean_surv = evaluated_survs.mean(axis=0)
             plt.plot(
                 time_points, mean_surv,
-                label=f"{display_name} (Mean Curve)",
+                label=f"{display_name}",
                 linestyle='-', alpha=0.8, color=color
             )
         elif isinstance(model_surv, pd.DataFrame):
@@ -95,7 +95,7 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
             mean_surv = model_surv.mean(axis=1)
             plt.plot(
                 model_surv.index, mean_surv,
-                label=f"{display_name} (Mean Curve)",
+                label=f"{display_name}",
                 linestyle='-', alpha=0.8, color=color
             )
         else:
