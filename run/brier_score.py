@@ -50,12 +50,15 @@ def process_folder_brier(base_dir, keywords, ignore_svm=True):
             model_name_map = {
                 'deepsurv': 'DeepSurv', 'deephit': 'DeepHit',
                 'cox_ph': 'CoxPH', 'gboost': 'GradientBoosting',
-                'svm': 'SVM', 'rsf': "RSF", 'kaplan_meier': 'KaplanMeier',
+                'svm': 'SVM-Surv', 'rsf': "RSurvivalForest", 'kaplan_meier': 'KaplanMeier',
                 'random': 'Random'
             }
             if ignore_svm:
                 brier_curves = brier_curves.drop(columns=['svm'], errors='ignore')
             
+            # Sort models alphabetically
+            brier_curves = brier_curves[['time'] + sorted(brier_curves.columns.drop('time'))]
+
             # Ensure the summary directory exists
             summary_dir = os.path.join(base_dir, 'summary')
             os.makedirs(summary_dir, exist_ok=True)
