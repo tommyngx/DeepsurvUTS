@@ -97,7 +97,7 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
 
     plt.show()
 
-def process_folder_calibration(base_dir, keywords, threshold, save_folder):
+def process_folder_calibration(base_dir, keywords, threshold, save_folder, ignore_svm=True):
     # Define columns for different sets
     cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
                'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
@@ -136,7 +136,9 @@ def process_folder_calibration(base_dir, keywords, threshold, save_folder):
             all_probs_df = generate_all_probabilities(models_list, test_x, test_y['time2event'], test_y['censored'], time_point, cols_x)
     
     # Plot the calibration curve
-    models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf', 'svm']
+    models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf']
+    if not ignore_svm:
+        models_to_plot.append('svm')
     plot_10_year_calibration_curve(
         models_to_plot=models_to_plot,
         all_probs_df=all_probs_df,
@@ -152,14 +154,16 @@ def main():
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
     parser.add_argument('--threshold', type=int, default=10, help="Time threshold for the calibration plot (default: 10 years).")
+    parser.add_argument('--ignore_svm', action='store_true', default=True, help="Ignore the SVM model.")
     args = parser.parse_args()
 
     base_dir = args.folder
     keywords = args.keyword.split('_')
     threshold = args.threshold
     save_folder = os.path.join(base_dir, 'summary')
+    ignore_svm = args.ignore_svm
 
-    process_folder_calibration(base_dir, keywords, threshold, save_folder)
+    process_folder_calibration(base_dir, keywords, threshold, save_folder, ignore_svm)
 
 if __name__ == "__main__":
     main()
