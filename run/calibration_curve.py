@@ -7,6 +7,10 @@ from utils import loading_config
 from sklearn.calibration import calibration_curve
 from evaluate import load_models_and_results, generate_all_probabilities
 
+
+# Load configuration
+config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
+
 def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_folder=None):
     """
     Plot calibration curves for models, ensuring consistent and repeatable results.
@@ -72,8 +76,6 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     plt.show()
 
 def process_folder_calibration(base_dir, keywords, threshold, save_folder, ignore_svm=True):
-    # Load configuration
-    config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
 
     # Initialize a DataFrame to store the results
     all_probs_df = pd.DataFrame()

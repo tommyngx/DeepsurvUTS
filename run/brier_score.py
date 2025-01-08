@@ -7,7 +7,7 @@ from evaluate import load_models_and_results, get_brier_curves
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 
-def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_folder=None):
+def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, color_list=None, font_prop=None, save_folder=None):
     plt.figure(figsize=(8, 6))
 
     # Ensure the number of models does not exceed the color list length
@@ -99,7 +99,7 @@ def process_folder_brier(base_dir, keywords, ignore_svm=True):
             summary_dir = os.path.join(base_dir, 'summary')
             os.makedirs(summary_dir, exist_ok=True)
             
-            plot_brier_curves_with_color_list(brier_curves, model_name_map, save_folder=summary_dir)
+            plot_brier_curves_with_color_list(brier_curves, model_name_map, color_list, font_prop, save_folder=summary_dir)
 
 def main():
     parser = argparse.ArgumentParser(description="Compute and plot Brier score curves for models in subfolders.")
