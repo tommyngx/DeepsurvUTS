@@ -66,6 +66,7 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
                 label=f"{display_name} (AUC = {roc_auc:.2f})",
                 color=color_list[models_to_plot.index(model_name)]
             )
+            plt.scatter(fpr, tpr, s=10, color=color_list[models_to_plot.index(model_name)])
 
     # Add diagonal line
     plt.plot([0, 1], [0, 1], 'k--', label='Random Guess', alpha=0.7)
