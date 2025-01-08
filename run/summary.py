@@ -65,29 +65,41 @@ def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
 
 def plot_performance_benchmark(df, summary_dir):
     import matplotlib.pyplot as plt
+    from matplotlib.font_manager import FontProperties
+    import requests
+
+    # Download and set the custom font
+    font_url = 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
+    font_path = 'Poppins.ttf'
+    response = requests.get(font_url)
+    with open(font_path, 'wb') as f:
+        f.write(response.content)
+    font_prop = FontProperties(fname=font_path)
 
     # Ensure the summary directory exists
     os.makedirs(summary_dir, exist_ok=True)
 
     # Plot cindex vs Brier scores
-    fig, ax = plt.subplots(figsize=(10, 6))
-    colors = plt.cm.get_cmap('tab10', len(df['model'].unique()))
+    fig, ax = plt.subplots(figsize=(10, 8))
+    colors = plt.colormaps.get_cmap('tab10', len(df['model'].unique()))
+    markers = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'h']
 
     for idx, model in enumerate(df['model'].unique()):
         if model == 'svm':
             continue
         color = colors(idx)
+        marker = markers[idx % len(markers)]
         model_df = df[df['model'] == model]
         x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
         y = model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten()
-        ax.plot(x, y, marker='o', label=model, color=color)
+        ax.plot(x, y, marker=marker, label=model, color=color)
         for i, txt in enumerate(['5', '11', '22']):
-            ax.annotate(txt, (x[i], y[i]))
+            ax.annotate(txt, (x[i], y[i]), fontproperties=font_prop)
 
-    ax.set_xlabel('Brier Score')
-    ax.set_ylabel('C-index')
-    ax.set_title('Performance Benchmark: C-index vs Brier Score')
-    ax.legend()
+    ax.set_xlabel('Brier Score', fontproperties=font_prop)
+    ax.set_ylabel('C-index', fontproperties=font_prop)
+    ax.set_title('Performance Benchmark: C-index vs Brier Score', fontproperties=font_prop, fontsize=16)
+    ax.legend(prop=font_prop)
     ax.grid(True)
 
     # Save the plot
