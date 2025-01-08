@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from evaluate import load_models_and_results, get_brier_curves, plot_brier_curves_with_color_list
 
-def process_folder_brier(base_dir, ignore_svm=False):
+def process_folder_brier(base_dir, keywords, ignore_svm=True):
     # Define columns for different sets
     cols_22 = ['age', 'education', 'weight', 'height', 'smoke', 'drink', 'no_falls', 'fx50', 'physical',
                'hypertension', 'copd', 'parkinson', 'cancer', 'rheumatoid', 'cvd',
@@ -18,7 +18,7 @@ def process_folder_brier(base_dir, ignore_svm=False):
     # Iterate through each folder and compute Brier score curves
     for folder in os.listdir(base_dir):
         folder_path = os.path.join(base_dir, folder)
-        if os.path.isdir(folder_path):
+        if os.path.isdir(folder_path) and all(keyword in folder for keyword in keywords):
             print(f"Processing folder: {folder_path}")
 
             # Determine which column set to use based on folder name
@@ -55,18 +55,25 @@ def process_folder_brier(base_dir, ignore_svm=False):
             }
             if ignore_svm:
                 brier_curves = brier_curves.drop(columns=['svm'], errors='ignore')
-            plot_brier_curves_with_color_list(brier_curves, model_name_map, save_folder=folder_path)
+            
+            # Ensure the summary directory exists
+            summary_dir = os.path.join(base_dir, 'summary')
+            os.makedirs(summary_dir, exist_ok=True)
+            
+            plot_brier_curves_with_color_list(brier_curves, model_name_map, save_folder=summary_dir)
 
 def main():
     parser = argparse.ArgumentParser(description="Compute and plot Brier score curves for models in subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
-    parser.add_argument('--ignore_svm', action='store_true', help="Ignore the SVM model.")
+    parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
+    parser.add_argument('--ignore_svm', action='store_true', default=True, help="Ignore the SVM model.")
     args = parser.parse_args()
 
     base_dir = args.folder
+    keywords = args.keyword.split('_')
     ignore_svm = args.ignore_svm
 
-    process_folder_brier(base_dir, ignore_svm)
+    process_folder_brier(base_dir, keywords, ignore_svm)
 
 if __name__ == "__main__":
     main()
