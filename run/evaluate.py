@@ -401,7 +401,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
 
     # Save the plot if save_folder is provided
     if save_folder:
-        save_path = f"{save_folder}/results/brier_curves.png"
+        save_path = f"{save_folder}/brier_curves.png"
         plt.savefig(save_path, format='png')
 
     plt.show()
