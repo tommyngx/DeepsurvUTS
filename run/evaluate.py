@@ -398,7 +398,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
         plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
 
     # Customize the plot
-    plt.title("Brier Score Curves", fontproperties=font_prop, pad=10)
+    plt.title("Brier Score Curves", fontsize=16, fontproperties=font_prop, pad=10)
     plt.xlabel("Time (years)", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Brier Score (%)", fontsize=14, fontproperties=font_prop)
     plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
