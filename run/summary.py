@@ -137,7 +137,7 @@ def main():
 
         # Merge cindex and Brier scores DataFrames on 'model'
         final_df = pd.merge(cindex_df, brier_df, on='model')
-        print(final_df)
+        #print(final_df)
 
         # Plot performance benchmark
         plot_performance_benchmark(final_df, summary_dir)
