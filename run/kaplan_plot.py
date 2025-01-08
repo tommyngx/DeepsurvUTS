@@ -7,6 +7,7 @@ from matplotlib.ticker import PercentFormatter
 import argparse
 from utils import loading_config
 from evaluate import load_models_and_results
+from sksurv.functions import StepFunction
 
 def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None):
     """
