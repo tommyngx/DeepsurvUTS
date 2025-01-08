@@ -1,7 +1,7 @@
 font:
   url: 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
   path: 'Poppins.ttf'
-  size: 14
+  size: 13
 
 model_name_map:
   deepsurv: 'DeepSurv'
