@@ -377,12 +377,9 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
         "#2ca02c", "#8c564b", "#9467bd", "#d62728", "#ff7f0e",
         "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
     ]
-    #color_list = plt.get_cmap('Dark2')
 
     # Ensure the number of models does not exceed the color list length
     models = [m for m in brier_curves.columns if m != 'time']
-    #if len(models) > len(color_list):
-    #    raise ValueError(f"Number of models ({len(models)}) exceeds available colors ({len(color_list)})")
 
     # Plot each column (except 'time') against the time column with assigned colors
     for idx, m in enumerate(models):
@@ -396,9 +393,9 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
         plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
 
     # Customize the plot
-    plt.title("Brier Score Curves", fontsize=14, fontproperties=font_prop)
-    plt.xlabel("Time (years)", fontsize=12, fontproperties=font_prop)
-    plt.ylabel("Brier Score (%)", fontsize=12, fontproperties=font_prop)
+    plt.title("Brier Score Curves", fontsize=16, fontproperties=font_prop, pad=20)
+    plt.xlabel("Time (years)", fontsize=14, fontproperties=font_prop)
+    plt.ylabel("Brier Score (%)", fontsize=14, fontproperties=font_prop)
     plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
 
     # Customize legend with a white background
