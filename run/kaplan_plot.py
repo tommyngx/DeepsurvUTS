@@ -122,7 +122,7 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
 
     # Save the plot if save_folder is provided
     if save_folder:
-        save_path = f"{save_folder}/results/kaplan_meier.png"
+        save_path = f"{save_folder}/kaplan_meier_{title.replace(' ', '_')}.png"
         plt.savefig(save_path, format='png')
 
     # Show the plot if show_plot is True
