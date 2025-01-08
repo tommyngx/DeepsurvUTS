@@ -9,7 +9,7 @@ from utils import loading_config
 from evaluate import load_models_and_results
 from sksurv.functions import StepFunction
 
-def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None, show_plot=False, keywords=None):
+def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None, show_plot=False, keywords=None, color_list=None, font_prop=None):
     """
     Plot Kaplan-Meier survival curve alongside survival curves from selected models with specified colors.
 
@@ -26,6 +26,8 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
         save_folder (str, optional): Folder to save the plot as a .png file.
         show_plot (bool, optional): Whether to show the plot.
         keywords (list, optional): List of keywords for naming the saved plot file.
+        color_list (list, optional): List of colors for the plot.
+        font_prop (FontProperties, optional): Font properties for the plot.
     """
     # Kaplan-Meier estimator
     kmf = KaplanMeierFitter()
@@ -61,13 +63,6 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
     # Plot Kaplan-Meier survival curve
     plt.figure(figsize=(8, 5))
     kmf.plot_survival_function(label='Kaplan-Meier', ci_show=False, color='black', linestyle='--')
-
-    # Define a list of colors for models
-    color_list = [
-        "#f0614a", "#11cd9a", "#ab63fa", "#8c564b", '#1f77b4', '#e377c2',
-        "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
-        "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
-    ]
 
     # Create a color map for models
     color_map = {model_name: color_list[idx % len(color_list)] for idx, model_name in enumerate(models_to_plot)}
@@ -109,14 +104,14 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
     # Customize the plot
     plt.xlim(0, max_time)
     plt.ylim(0, 1)
-    plt.title(title, fontsize=14)
-    plt.xlabel('Time (years)', fontsize=12)
-    plt.ylabel('Survival Probability', fontsize=12)
+    plt.title(title, fontsize=14, fontproperties=font_prop)
+    plt.xlabel('Time (years)', fontsize=12, fontproperties=font_prop)
+    plt.ylabel('Survival Probability', fontsize=12, fontproperties=font_prop)
     plt.gca().yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0))  # Percentage format for survival probability
     plt.grid(True, linestyle='--', alpha=0.7)
 
     # Customize legend with a white background
-    legend = plt.legend(loc='best', fontsize=10)
+    legend = plt.legend(loc='best', fontsize=10, prop=font_prop)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
@@ -170,7 +165,7 @@ def process_folder_kaplan(base_dir, keywords):
                 y_time=test_y['time2event'], y_censored=test_y['censored'],
                 models=models_list, X_test=test_x, models_to_plot=models_to_plot,
                 cols_x=cols_x, time_points=time_points, model_name_map=model_name_map,
-                title=f"Kaplan-Meier vs Models Survival Curve ({folder})", save_folder=summary_dir, keywords=keywords
+                title=f"Kaplan-Meier vs Models Survival Curve ({folder})", save_folder=summary_dir, keywords=keywords, color_list=color_list, font_prop=font_prop
             )
 
 def main():
