@@ -404,6 +404,11 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
+    # Add lines and markers to the legend
+    for handle in legend.legendHandles:
+        handle.set_linestyle('-')
+        handle.set_marker('o')
+
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
 
