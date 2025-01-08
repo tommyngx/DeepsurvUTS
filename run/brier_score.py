@@ -25,7 +25,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, color_l
         plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
 
     # Customize the plot
-    keyword_str = ' '.join(keyword).replace('_', ' ')
+    keyword_str = ''.join(keyword).replace('_', ' ')
     plt.title(f"Brier Score Curves ({keyword_str})",  fontproperties=font_prop, fontsize=16, pad=10)
     plt.xlabel("Time (years)", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Brier Score (%)", fontsize=14, fontproperties=font_prop)
