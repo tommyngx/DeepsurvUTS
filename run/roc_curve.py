@@ -54,7 +54,8 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     plt.plot([0, 1], [0, 1], 'k--', label='Random Guess', alpha=0.7)
 
     # Customize plot
-    plt.title(title, fontproperties=font_prop, fontsize=16, pad=10)
+    keyword_str = ' '.join(keyword).replace('_', ' ')
+    plt.title(f"{title} ({keyword_str})", fontproperties=font_prop, fontsize=16, pad=10)
     plt.xlabel("1 - Specificity", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Sensitivity", fontsize=14, fontproperties=font_prop)
     plt.legend(loc="best", prop=font_prop, fontsize=13)

@@ -55,8 +55,8 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
             plt.plot(prob_pred, prob_true, marker='o', label=model_name_map.get(model_name, model_name), color=color_list[models_to_plot.index(model_name)])
 
     # Customize the plot
-    plt.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration', alpha=0.7)
-    plt.title(title,  fontproperties=font_prop, fontsize=16, pad=10)
+    keyword_str = ' '.join(keyword).replace('_', ' ')
+    plt.title(f"{title} ({keyword_str})",  fontproperties=font_prop, fontsize=16, pad=10)
     plt.xlabel("Predicted Probability (10 years)", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Observed Proportion (10 years)", fontsize=14, fontproperties=font_prop)
 

@@ -63,7 +63,7 @@ def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
     results_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
     #print(results_df)
 
-def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
+def plot_performance_benchmark(df, summary_dir, keywords, use_custom_colors=True):
     # Ensure the summary directory exists
     os.makedirs(summary_dir, exist_ok=True)
 
@@ -84,7 +84,8 @@ def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
 
     ax.set_xlabel('Brier Score', fontproperties=font_prop, fontsize=14)
     ax.set_ylabel('C-index', fontproperties=font_prop, fontsize=14)
-    ax.set_title('Performance Benchmark: C-index vs Brier Score', fontproperties=font_prop, fontsize=16, pad=10)
+    keyword_str = ' '.join(keywords).replace('_', ' ')
+    ax.set_title(f'Performance Benchmark: ({keyword_str})', fontproperties=font_prop, fontsize=16, pad=10)
     legend = ax.legend(prop=font_prop, loc='lower left', fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
@@ -92,7 +93,6 @@ def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
     ax.grid(True, linestyle='--', alpha=0.7)
 
     # Save the plot
-    keyword_str = '_'.join(keywords).replace('_', ' ')
     plot_path = os.path.join(summary_dir, f'performance_benchmark_{keyword_str}.png')
     plt.savefig(plot_path)
     plt.close()
@@ -130,7 +130,7 @@ def main():
         #print(final_df)
 
         # Plot performance benchmark
-        plot_performance_benchmark(final_df, summary_dir, use_custom_colors)
+        plot_performance_benchmark(final_df, summary_dir, keywords, use_custom_colors)
     else:
         print("No matching CSV files found.")
 
