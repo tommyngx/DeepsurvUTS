@@ -8,6 +8,7 @@ import requests
 import yaml
 from sklearn.metrics import roc_curve, auc
 from evaluate import load_models_and_results, generate_all_probabilities
+from matplotlib.lines import Line2D
 
 # Load configuration from YAML file
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
