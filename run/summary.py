@@ -80,7 +80,7 @@ def plot_performance_benchmark(df, summary_dir):
     os.makedirs(summary_dir, exist_ok=True)
 
     # Plot cindex vs Brier scores
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=(8, 7))
     colors = plt.get_cmap('Dark2')
 
     for idx, model in enumerate(df['model'].unique()):
