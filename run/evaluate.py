@@ -310,7 +310,7 @@ def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.
             print(f"Skipping {name}: Model not found.")
             continue
 
-        print(f"Processing model: {name}")
+        #print(f"Processing model: {name}")
         model = models[name]
 
         if name == 'deepsurv':

@@ -92,7 +92,8 @@ def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
     ax.grid(True, linestyle='--', alpha=0.7)
 
     # Save the plot
-    plot_path = os.path.join(summary_dir, 'performance_benchmark.png')
+    keyword_str = '_'.join(keywords).replace('_', ' ')
+    plot_path = os.path.join(summary_dir, f'performance_benchmark_{keyword_str}.png')
     plt.savefig(plot_path)
     plt.close()
 
