@@ -129,13 +129,13 @@ def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
-    parser.add_argument('--color', action='store_false', help="Use colormap instead of custom color list.")
+    parser.add_argument('--color', type=bool, default=True, help="Use custom color list if True, otherwise use colormap.")
     args = parser.parse_args()
 
     base_dir = args.folder
     keywords = args.keyword.split('_')
     summary_dir = os.path.join(base_dir, 'summary')
-    use_custom_colors = not args.color
+    use_custom_colors = args.color
 
     # Initialize a dictionary to store the results
     results_dict = {'model': [], '5risks_brier': [], '11risks_brier': [], '22risks_brier': []}
