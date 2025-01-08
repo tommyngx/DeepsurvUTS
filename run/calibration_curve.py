@@ -77,7 +77,7 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     plt.ylabel("Observed Proportion (10 years)", fontsize=14, fontproperties=font_prop)
 
     # Customize legend with a white background
-    legend = plt.legend()
+    legend = plt.legend(prop=font_prop, fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 

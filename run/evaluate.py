@@ -404,7 +404,7 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
     plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
 
     # Customize legend with a white background
-    legend = plt.legend()
+    legend = plt.legend(prop=font_prop, fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
