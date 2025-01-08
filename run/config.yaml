@@ -1,0 +1,25 @@
+font:
+  url: 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
+  path: 'Poppins.ttf'
+  size: 19
+
+model_name_map:
+  deepsurv: 'DeepSurv'
+  deephit: 'DeepHit'
+  cox_ph: 'CoxPH'
+  gboost: 'GradientBoosting'
+  svm: 'SVM-Surv'
+  rsf: 'RSurvivalForest'
+  kaplan_meier: 'KaplanMeier'
+  random: 'Random'
+
+color_list:
+  - "#2ca02c"
+  - "#8c564b"
+  - "#9467bd"
+  - "#d62728"
+  - "#ff7f0e"
+  - "#e377c2"
+  - "#7f7f7f"
+  - "#bcbd22"
+  - "#17becf"

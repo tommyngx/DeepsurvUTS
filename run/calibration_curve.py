@@ -5,8 +5,27 @@ import argparse
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import requests
+import yaml
 from sklearn.calibration import calibration_curve
 from evaluate import load_models_and_results, generate_all_probabilities
+
+# Load configuration from YAML file
+with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
+    config = yaml.safe_load(file)
+
+# Set font properties
+font_url = config['font']['url']
+font_path = config['font']['path']
+response = requests.get(font_url)
+with open(font_path, 'wb') as f:
+    f.write(response.content)
+font_prop = FontProperties(fname=font_path, size=config['font']['size'])
+
+# Model name mapping
+model_name_map = config['model_name_map']
+
+# Color list
+color_list = config['color_list']
 
 def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_folder=None):
     """
@@ -21,31 +40,6 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
         title (str): Title for the plot.
         save_folder (str, optional): Folder to save the plot as a .png file.
     """
-    # Download and set the custom font
-    font_url = 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
-    font_path = 'Poppins.ttf'
-    response = requests.get(font_url)
-    with open(font_path, 'wb') as f:
-        f.write(response.content)
-    font_prop = FontProperties(fname=font_path, size=19)
-
-    # Model name mapping
-    model_name_map = {
-        'deepsurv': 'DeepSurv', 'deephit': 'DeepHit',
-        'cox_ph': 'CoxPH', 'gboost': 'GradientBoosting',
-        'svm': 'SVM-Surv', 'rsf': "RSurvivalForest", 'kaplan_meier': 'KaplanMeier',
-        'random': 'Random'
-    }
-
-    # Define the color list
-    color_list = [
-        "#2ca02c", "#8c564b", "#9467bd", "#d62728","#e377c2", "#ff7f0e",
-         "#7f7f7f", "#bcbd22", "#17becf"
-    ]
-
-    # Ensure models and colors align
-    color_map = {model_name: color_list[idx % len(color_list)] for idx, model_name in enumerate(models_to_plot)}
-
     plt.figure(figsize=(8, 6))
 
     # Create Actual Outcome Column
@@ -74,7 +68,7 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
             prob_true = 1 - prob_true
 
             # Plot the calibration curve
-            plt.plot(prob_pred, prob_true, marker='o', label=model_name_map.get(model_name, model_name), color=color_map[model_name])
+            plt.plot(prob_pred, prob_true, marker='o', label=model_name_map.get(model_name, model_name), color=color_list[models_to_plot.index(model_name)])
 
     # Customize the plot
     plt.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration', alpha=0.7)

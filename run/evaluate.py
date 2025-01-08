@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import torch
+import yaml
 from pycox.evaluation import EvalSurv
 from sksurv.metrics import integrated_brier_score, brier_score
 from sksurv.functions import StepFunction
@@ -16,17 +17,26 @@ from matplotlib.ticker import PercentFormatter
 import requests
 from matplotlib.font_manager import FontProperties
 
-# Add MLPVanilla and set to the safe globals for torch.load
-torch.serialization.add_safe_globals([tt.practical.MLPVanilla, set])
+# Load configuration from YAML file
+with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
+    config = yaml.safe_load(file)
 
-# Download and set the custom font
-font_url = 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
-font_path = 'Poppins.ttf'
+# Set font properties
+font_url = config['font']['url']
+font_path = config['font']['path']
 response = requests.get(font_url)
 with open(font_path, 'wb') as f:
     f.write(response.content)
-# Set the custom font with size
-font_prop = FontProperties(fname=font_path, size=19)
+font_prop = FontProperties(fname=font_path, size=config['font']['size'])
+
+# Model name mapping
+model_name_map = config['model_name_map']
+
+# Color list
+color_list = config['color_list']
+
+# Add MLPVanilla and set to the safe globals for torch.load
+torch.serialization.add_safe_globals([tt.practical.MLPVanilla, set])
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
@@ -373,18 +383,12 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
     """
     plt.figure(figsize=(8, 6))
 
-    # Define the color list
-    color_list = [
-        "#2ca02c", "#8c564b", "#9467bd", "#d62728", "#ff7f0e",
-        "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
-    ]
-
     # Ensure the number of models does not exceed the color list length
     models = [m for m in brier_curves.columns if m != 'time']
 
     # Plot each column (except 'time') against the time column with assigned colors
     for idx, m in enumerate(models):
-        color = color_list[idx]  # Assign color from the list
+        color = color_list[idx % len(color_list)]  # Assign color from the list
 
         # Use model_name_map if provided, otherwise use original names
         display_name = model_name_map.get(m, m) if model_name_map else m
