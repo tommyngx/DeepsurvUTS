@@ -393,7 +393,7 @@ def generate_all_probabilities(models, X_test, y_time, y_censored, time_point, c
 
     # Compute predicted probabilities for each model
     for model_name, model in models.items():
-        print(f"Processing model: {model_name}")
+        #print(f"Processing model: {model_name}")
         X_test_filtered = X_test[cols_x]  # Only use columns used during training
 
         if model_name in ['gboost', 'cox_ph', 'rsf']:
