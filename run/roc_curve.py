@@ -8,7 +8,6 @@ import requests
 import yaml
 from sklearn.metrics import roc_curve, auc
 from evaluate import load_models_and_results, generate_all_probabilities
-from matplotlib.lines import Line2D
 
 # Load configuration from YAML file
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
@@ -47,7 +46,6 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     plt.figure(figsize=(8, 6))
 
     # Step 2: Loop through models and plot ROC curves
-    custom_legend_elements = []
     for model_name in models_to_plot:
         if model_name in all_probs_df.columns:
             # Map model name if mapping is provided
@@ -62,34 +60,21 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
             fpr, tpr, thresholds = roc_curve(y_true=actual, y_score=predicted)
             roc_auc = auc(fpr, tpr)
 
-            # Plot ROC curve (lines only)
+            # Plot ROC curve
             plt.plot(
                 fpr, tpr,
                 label=f"{display_name} (AUC = {roc_auc:.2f})",
-                color=color_list[models_to_plot.index(model_name)],
-                linestyle='-'
-            )
-
-            # Create custom legend element with line and marker
-            custom_legend_elements.append(
-                Line2D([0], [0], color=color_list[models_to_plot.index(model_name)], linestyle='-', marker='o',
-                       label=f"{display_name} (AUC = {roc_auc:.2f})")
+                color=color_list[models_to_plot.index(model_name)]
             )
 
     # Add diagonal line
     plt.plot([0, 1], [0, 1], 'k--', label='Random Guess', alpha=0.7)
-    custom_legend_elements.append(
-        Line2D([0], [0], color='black', linestyle='--', label='Random Guess')
-    )
 
     # Customize plot
     plt.title(title, fontproperties=font_prop, fontsize=16, pad=10)
     plt.xlabel("1 - Specificity", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Sensitivity", fontsize=14, fontproperties=font_prop)
-
-    # Add custom legend
-    plt.legend(handles=custom_legend_elements, loc="best", prop=font_prop, fontsize=13)
-
+    plt.legend(loc="best", prop=font_prop, fontsize=13)
 
     # Customize legend with a white background
     legend = plt.legend(prop=font_prop, fontsize=13)
