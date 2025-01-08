@@ -5,7 +5,8 @@ import argparse
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import requests
-from evaluate import load_models_and_results
+from sklearn.calibration import calibration_curve
+from evaluate import load_models_and_results, generate_all_probabilities
 
 def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold, title, save_folder):
     """
@@ -47,6 +48,10 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
 
     plt.figure(figsize=(8, 6))
 
+    # Create Actual Outcome Column
+    all_probs_df['Actual Outcome'] = ((all_probs_df[time_col] <= threshold) & (all_probs_df[censored_col] == 1)).astype(int)
+
+    # Loop through models and plot calibration curves
     for idx, model in enumerate(models_to_plot):
         color = color_list[idx % len(color_list)]  # Assign color from the list
         display_name = model_name_map.get(model, model)  # Use model_name_map if provided, otherwise use original names
@@ -54,12 +59,27 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
         # Filter the DataFrame for the current model
         model_df = all_probs_df[all_probs_df['model'] == model]
 
-        # Compute observed and predicted probabilities
-        observed = model_df[model_df[time_col] <= threshold][censored_col].mean()
-        predicted = model_df[model_df[time_col] <= threshold]['predicted_prob'].mean()
+        # Get predicted probabilities and actual outcomes
+        predicted = model_df['predicted_prob'].values
+        actual = model_df['Actual Outcome'].values
+
+        # Ensure deterministic binning for calibration curve
+        sorted_indices = np.argsort(predicted)
+        predicted_sorted = predicted[sorted_indices]
+        actual_sorted = actual[sorted_indices]
+
+        # Compute calibration curve
+        prob_true, prob_pred = calibration_curve(
+            y_true=actual_sorted,
+            y_prob=predicted_sorted,
+            n_bins=10,
+            strategy='uniform'
+        )
+
+        prob_true = 1 - prob_true
 
         # Plot the calibration curve
-        plt.plot(predicted, observed, marker='o', label=display_name, color=color)
+        plt.plot(prob_pred, prob_true, marker='o', label=display_name, color=color)
 
     # Customize the plot
     plt.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration')
@@ -114,22 +134,9 @@ def process_folder_calibration(base_dir, keywords, threshold, save_folder):
             test_x = pd.read_pickle(os.path.join(folder_path, 'data', 'test_x.pkl'))
             test_y = pd.read_pickle(os.path.join(folder_path, 'data', 'test_y.pkl'))
 
-            # Compute predicted probabilities for each model
-            for model_name, model in models_list.items():
-                if hasattr(model, 'predict_surv_df'):
-                    surv_df = model.predict_surv_df(test_x[cols_x].values)
-                    predicted_prob = 1 - surv_df.loc[threshold].values
-                else:
-                    predicted_prob = model.predict_proba(test_x[cols_x].values)[:, 1]
-
-                # Append results to the DataFrame
-                temp_df = pd.DataFrame({
-                    'model': model_name,
-                    'time': test_y['time2event'],
-                    'outcomeTime': test_y['censored'],
-                    'predicted_prob': predicted_prob
-                })
-                all_probs_df = pd.concat([all_probs_df, temp_df], ignore_index=True)
+            # Generate all probabilities
+            time_point = 10  # Time point for analysis
+            all_probs_df = generate_all_probabilities(models_list, test_x, test_y['time2event'], test_y['censored'], time_point, cols_x)
 
     # Plot the calibration curve
     models_to_plot = all_probs_df['model'].unique()

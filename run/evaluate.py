@@ -413,3 +413,66 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
         plt.savefig(save_path, format='png')
 
     plt.show()
+
+def generate_all_probabilities(models, X_test, y_time, y_censored, time_point, cols_x):
+    """
+    Generate a DataFrame of observed, predicted probabilities, and actual outcomes for all models.
+
+    Args:
+        models (dict): Dictionary containing the models ('deepsurv', 'deephit', 'cox_ph', 'svm', 'rsf', etc.).
+        X_test (pd.DataFrame): Feature data for the test set.
+        y_time (pd.Series): Time-to-event data for the test set.
+        y_censored (pd.Series): Censoring indicator (1 = event, 0 = censored).
+        time_point (float): Time point for which to compute probabilities.
+        cols_x (list): List of feature columns used during model training.
+
+    Returns:
+        pd.DataFrame: DataFrame with patients, observed probabilities, model-predicted probabilities,
+                      and actual outcomes (True = Event, False = No Event).
+    """
+    from lifelines import KaplanMeierFitter
+
+    # Initialize Kaplan-Meier fitter
+    kmf = KaplanMeierFitter()
+    kmf.fit(y_time, y_censored)
+    km_observed_probs = kmf.predict(time_point)
+
+    # Create a DataFrame to store predicted probabilities
+    predicted_probs = pd.DataFrame(index=X_test.index)
+    predicted_probs['Observed Probability (Kaplan-Meier)'] = km_observed_probs
+
+    # Add the actual outcome column with boolean values
+    predicted_probs['Actual Outcome'] = y_censored.astype(int)
+
+    # Compute predicted probabilities for each model
+    for model_name, model in models.items():
+        print(f"Processing model: {model_name}")
+        X_test_filtered = X_test[cols_x]  # Only use columns used during training
+
+        if model_name in ['gboost', 'cox_ph', 'rsf']:
+            # Models with survival functions
+            survival_function = model.predict_survival_function(X_test_filtered)
+            predicted_probs[model_name] = [fn(time_point) for fn in survival_function]
+        elif model_name == 'svm':
+            # FastSurvivalSVM generates risk scores, convert them to probabilities
+            risk_scores = model.predict(X_test_filtered)
+            predicted_probs[model_name] = 1 / (1 + np.exp(-risk_scores))  # Sigmoid conversion
+        elif model_name in ['deepsurv', 'deephit']:
+            # DeepSurv and DeepHit specific computation
+            survival_function = model.predict_surv_df(np.array(X_test_filtered).astype(np.float32))
+            closest_time_point = survival_function.index.get_indexer([time_point], method="nearest")[0]
+            predicted_probs[model_name] = survival_function.iloc[closest_time_point].values
+        else:
+            raise ValueError(f"Model '{model_name}' is not supported.")
+
+    # Add a Patient column for unique identifiers
+    predicted_probs.reset_index(inplace=True)
+    predicted_probs.rename(columns={'index': 'Patient'}, inplace=True)
+
+    # Add additional columns for time and outcome at the specified time point
+    predicted_probs['time'] = y_time
+    predicted_probs['outcomeTime'] = predicted_probs.apply(
+        lambda row: row['Actual Outcome'] if row['time'] <= time_point else 0, axis=1
+    )
+
+    return predicted_probs
