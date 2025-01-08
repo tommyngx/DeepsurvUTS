@@ -72,8 +72,8 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
 
     # Customize plot
     plt.title(title, fontproperties=font_prop, fontsize=16, pad=10)
-    plt.ylabel("1 - Specificity", fontsize=14, fontproperties=font_prop)
-    plt.xlabel("Sensitivity", fontsize=14, fontproperties=font_prop)
+    plt.xlabel("1 - Specificity", fontsize=14, fontproperties=font_prop)
+    plt.ylabel("Sensitivity", fontsize=14, fontproperties=font_prop)
     plt.legend(loc="best", prop=font_prop, fontsize=13)
 
     # Customize legend with a white background
