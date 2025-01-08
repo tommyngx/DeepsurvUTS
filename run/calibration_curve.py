@@ -8,18 +8,18 @@ import requests
 from sklearn.calibration import calibration_curve
 from evaluate import load_models_and_results, generate_all_probabilities
 
-def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold, title, save_folder):
+def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censored_col, threshold=10, title="10-Year Calibration Curve", save_folder=None):
     """
-    Plot 10-year calibration curves for multiple models.
+    Plot calibration curves for models, ensuring consistent and repeatable results.
 
     Args:
-        models_to_plot (list): List of model names to plot.
-        all_probs_df (pd.DataFrame): DataFrame containing predicted probabilities and actual outcomes.
-        time_col (str): Column name for the time-to-event variable.
-        censored_col (str): Column name for the censoring variable.
-        threshold (int): Time threshold for the calibration plot (e.g., 10 years).
-        title (str): Title of the plot.
-        save_folder (str): Folder to save the plot as a .png file.
+        models_to_plot (list): List of model names to include in the calibration plot.
+        all_probs_df (pd.DataFrame): DataFrame containing predicted probabilities and survival data.
+        time_col (str): Name of the column representing time-to-event.
+        censored_col (str): Name of the column representing censoring status (1 = event, 0 = censored).
+        threshold (float): Time threshold (e.g., 10 years).
+        title (str): Title for the plot.
+        save_folder (str, optional): Folder to save the plot as a .png file.
     """
     # Download and set the custom font
     font_url = 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
@@ -37,14 +37,14 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
         'random': 'Random'
     }
 
-    # Ensure the save folder exists
-    os.makedirs(save_folder, exist_ok=True)
-
     # Define the color list
     color_list = [
         "#2ca02c", "#8c564b", "#9467bd", "#d62728", "#ff7f0e",
         "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
     ]
+
+    # Ensure models and colors align
+    color_map = {model_name: color_list[idx % len(color_list)] for idx, model_name in enumerate(models_to_plot)}
 
     plt.figure(figsize=(8, 6))
 
@@ -52,52 +52,49 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     all_probs_df['Actual Outcome'] = ((all_probs_df[time_col] <= threshold) & (all_probs_df[censored_col] == 1)).astype(int)
 
     # Loop through models and plot calibration curves
-    for idx, model in enumerate(models_to_plot):
-        color = color_list[idx % len(color_list)]  # Assign color from the list
-        display_name = model_name_map.get(model, model)  # Use model_name_map if provided, otherwise use original names
+    for model_name in models_to_plot:
+        if model_name in all_probs_df.columns:
+            # Get predicted probabilities and actual outcomes
+            predicted = all_probs_df[model_name].values
+            actual = all_probs_df['Actual Outcome'].values
 
-        # Filter the DataFrame for the current model
-        model_df = all_probs_df[all_probs_df['model'] == model]
+            # Ensure deterministic binning for calibration curve
+            sorted_indices = np.argsort(predicted)
+            predicted_sorted = predicted[sorted_indices]
+            actual_sorted = actual[sorted_indices]
 
-        # Get predicted probabilities and actual outcomes
-        predicted = model_df['predicted_prob'].values
-        actual = model_df['Actual Outcome'].values
+            # Compute calibration curve
+            prob_true, prob_pred = calibration_curve(
+                y_true=actual_sorted,
+                y_prob=predicted_sorted,
+                n_bins=10,
+                strategy='uniform'
+            )
 
-        # Ensure deterministic binning for calibration curve
-        sorted_indices = np.argsort(predicted)
-        predicted_sorted = predicted[sorted_indices]
-        actual_sorted = actual[sorted_indices]
+            prob_true = 1 - prob_true
 
-        # Compute calibration curve
-        prob_true, prob_pred = calibration_curve(
-            y_true=actual_sorted,
-            y_prob=predicted_sorted,
-            n_bins=10,
-            strategy='uniform'
-        )
-
-        prob_true = 1 - prob_true
-
-        # Plot the calibration curve
-        plt.plot(prob_pred, prob_true, marker='o', label=display_name, color=color)
+            # Plot the calibration curve
+            plt.plot(prob_pred, prob_true, marker='o', label=model_name_map.get(model_name, model_name), color=color_map[model_name])
 
     # Customize the plot
-    plt.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration')
+    plt.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration', alpha=0.7)
     plt.title(title, fontproperties=font_prop, pad=20)
-    plt.xlabel("Predicted Probability", fontsize=14, fontproperties=font_prop)
-    plt.ylabel("Observed Probability", fontsize=14, fontproperties=font_prop)
+    plt.xlabel("Predicted Probability (10 years)", fontsize=14, fontproperties=font_prop)
+    plt.ylabel("Observed Proportion (10 years)", fontsize=14, fontproperties=font_prop)
 
     # Customize legend with a white background
     legend = plt.legend()
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
-    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
 
-    # Save the plot
-    save_path = os.path.join(save_folder, '10_year_calibration_curve.png')
-    plt.savefig(save_path, format='png')
+    # Save the plot if save_folder is provided
+    if save_folder:
+        save_path = f"{save_folder}/calibration_curve.png"
+        plt.savefig(save_path, format='png')
+
     plt.show()
 
 def process_folder_calibration(base_dir, keywords, threshold, save_folder):
@@ -138,10 +135,8 @@ def process_folder_calibration(base_dir, keywords, threshold, save_folder):
             time_point = 10  # Time point for analysis
             all_probs_df = generate_all_probabilities(models_list, test_x, test_y['time2event'], test_y['censored'], time_point, cols_x)
     
-    #print(all_probs_df)
     # Plot the calibration curve
-    #models_to_plot = all_probs_df['model'].unique()
-    models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf','svm']
+    models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf', 'svm']
     plot_10_year_calibration_curve(
         models_to_plot=models_to_plot,
         all_probs_df=all_probs_df,
