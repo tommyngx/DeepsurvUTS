@@ -60,31 +60,32 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
             fpr, tpr, thresholds = roc_curve(y_true=actual, y_score=predicted)
             roc_auc = auc(fpr, tpr)
 
-            # Plot ROC curve
-            plt.plot(
+            # Plot ROC curve and save the handle for the legend
+            line, = plt.plot(
                 fpr, tpr,
                 label=f"{display_name} (AUC = {roc_auc:.2f})",
-                color=color_list[models_to_plot.index(model_name)]
+                color=color_list[models_to_plot.index(model_name)],
+                linestyle='-',
+                marker='o'
             )
+            handles.append(line)
 
     # Add diagonal line
-    plt.plot([0, 1], [0, 1], 'k--', label='Random Guess', alpha=0.7)
+    random_line, = plt.plot([0, 1], [0, 1], 'k--', label='Random Guess', alpha=0.7)
+    handles.append(random_line)
 
     # Customize plot
     plt.title(title, fontproperties=font_prop, fontsize=16, pad=10)
     plt.xlabel("1 - Specificity", fontsize=14, fontproperties=font_prop)
     plt.ylabel("Sensitivity", fontsize=14, fontproperties=font_prop)
-    plt.legend(loc="best", prop=font_prop, fontsize=13)
+
+    # Customize legend
+    plt.legend(handles=handles, loc="best", prop=font_prop, fontsize=13)
 
     # Customize legend with a white background
     legend = plt.legend(prop=font_prop, fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
-
-    # Add markers with lines to the legend
-    #for handle in legend.legendHandles:
-    #    handle.set_marker('o')
-    #    handle.set_linestyle('-')
 
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
