@@ -86,25 +86,16 @@ def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
     #print(results_df)
 
 def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
-
     # Ensure the summary directory exists
     os.makedirs(summary_dir, exist_ok=True)
 
     # Plot cindex vs Brier scores
     fig, ax = plt.subplots(figsize=(8, 7))
 
-    if use_custom_colors:
-        color_list = [
-            "#2ca02c", "#8c564b", "#9467bd", "#d62728", "#ff7f0e",
-            "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
-        ]
-    else:
-        color_list = plt.get_cmap('Dark2')
-
     for idx, model in enumerate(df['model'].unique()):
         if model == 'svm':
             continue
-        color = color_list[idx % len(color_list)] if use_custom_colors else color_list(idx / len(df['model'].unique()))
+        color = color_list[idx % len(color_list)] if use_custom_colors else plt.get_cmap('Dark2')(idx / len(df['model'].unique()))
         marker = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'h'][idx % 10]
         model_df = df[df['model'] == model]
         x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
@@ -120,7 +111,6 @@ def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
-    #ax.grid(True, color='#d3d3d3')  # Lighter grey color
     ax.grid(True, linestyle='--', alpha=0.7)
 
     # Save the plot
