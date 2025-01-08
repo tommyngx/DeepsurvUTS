@@ -66,7 +66,6 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
                 label=f"{display_name} (AUC = {roc_auc:.2f})",
                 color=color_list[models_to_plot.index(model_name)]
             )
-            plt.scatter(fpr, tpr, s=10, color=color_list[models_to_plot.index(model_name)])
 
     # Add diagonal line
     plt.plot([0, 1], [0, 1], 'k--', label='Random Guess', alpha=0.7)
@@ -81,6 +80,12 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     legend = plt.legend(prop=font_prop, fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
+
+    # Add markers to the legend only
+    for handle in legend.legendHandles:
+        handle.set_marker('o')
+        handle.set_linestyle('None')
+
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
 
