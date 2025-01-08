@@ -81,7 +81,7 @@ def plot_performance_benchmark(df, summary_dir):
 
     # Plot cindex vs Brier scores
     fig, ax = plt.subplots(figsize=(10, 8))
-    colors = plt.get_cmap('tab10')
+    colors = plt.get_cmap('Dark2')
 
     for idx, model in enumerate(df['model'].unique()):
         if model == 'svm':
