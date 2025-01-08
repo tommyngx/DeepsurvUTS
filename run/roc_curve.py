@@ -43,7 +43,7 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
     # Step 1: Create Actual Outcome Column
     all_probs_df['Actual Outcome'] = ((all_probs_df[time_col] <= threshold) & (all_probs_df[censored_col] == 1)).astype(int)
 
-    plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(8, 6))
 
     # Step 2: Loop through models and plot ROC curves
     for model_name in models_to_plot:
@@ -72,12 +72,12 @@ def plot_roc_curve(models_to_plot, all_probs_df, time_col, censored_col, thresho
 
     # Customize plot
     plt.title(title, fontproperties=font_prop, fontsize=16, pad=10)
-    plt.xlabel("False Positive Rate", fontsize=14, fontproperties=font_prop)
-    plt.ylabel("True Positive Rate", fontsize=14, fontproperties=font_prop)
+    plt.ylabel("1 - Specificity", fontsize=14, fontproperties=font_prop)
+    plt.xlabel("Sensitivity", fontsize=14, fontproperties=font_prop)
     plt.legend(loc="best", prop=font_prop, fontsize=13)
 
     # Customize legend with a white background
-    legend = plt.legend()
+    legend = plt.legend(prop=font_prop, fontsize=13)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
     plt.grid(True, linestyle="--", alpha=0.7)
