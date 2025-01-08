@@ -263,3 +263,142 @@ def get_integrated_brier_score(models, X_train, X_test, y_train, y_test, cols_x,
 
     integrated_scores = {name: round(score, 5) for name, score in integrated_scores.items()}
     return integrated_scores
+
+def get_brier_curves(models, X_train, X_test, y_train, y_test, cols_x, times=np.arange(1, 20)):
+    """
+    Compute Brier score curves for 'gboost', 'cox_ph', 'deepsurv', 'deephit', 'svm', and 'rsf' models over a range of times.
+
+    Args:
+        models (dict): Dictionary containing supported models.
+        X_train (pd.DataFrame): Training features.
+        X_test (pd.DataFrame): Testing features.
+        y_train (pd.DataFrame): Training target survival data.
+        y_test (pd.DataFrame): Testing target survival data.
+        cols_x (list): List of feature column names.
+        times (np.ndarray): Time points for evaluation.
+
+    Returns:
+        pd.DataFrame: DataFrame of Brier score curves for all models.
+    """
+    # Get the maximum observed time in the training set
+    max_time_train = np.max(y_train["time2event"])
+
+    # Filter the test set to ensure times do not exceed the maximum time in the training set
+    valid_test_indices = y_test["time2event"] <= max_time_train
+    y_test_filtered = y_test[valid_test_indices]
+    X_test_filtered = X_test[valid_test_indices]
+
+    brier_curves = None
+
+    for i, name in enumerate(['gboost', 'cox_ph', 'deepsurv', 'deephit', 'svm', 'rsf']):
+        if name not in models:
+            print(f"Skipping {name}: Model not found.")
+            continue
+
+        print(f"Processing model: {name}")
+        model = models[name]
+
+        if name == 'deepsurv':
+            # DeepSurv specific computation
+            survs = model.predict_surv_df(np.array(X_test_filtered[cols_x]).astype(np.float32))
+            ev = EvalSurv(survs, y_test_filtered["time2event"], y_test_filtered['censored'], censor_surv='km')
+            scores = ev.brier_score(times)
+
+        elif name == 'deephit':
+            # DeepHit specific computation
+            survs = model.predict_surv_df(np.array(X_test_filtered[cols_x]).astype(np.float32))
+            ev = EvalSurv(survs, y_test_filtered["time2event"], y_test_filtered['censored'], censor_surv='km')
+            scores = ev.brier_score(times)
+
+        elif name == 'svm':
+            # SVM (FastSurvivalSVM) specific computation
+            risks = model.predict(X_test_filtered[cols_x])
+            survs = convert_risk_to_survival(risks, times)
+            scores = []
+            for t in times:
+                preds = [fn(t) for fn in survs]
+                _, score = brier_score(y_train, y_test_filtered, preds, t)
+                scores.append(score[0])
+
+        elif name == 'rsf':
+            # Random Survival Forest specific computation
+            survs = model.predict_survival_function(X_test_filtered[cols_x])
+            scores = []
+            for t in times:
+                preds = [fn(t) for fn in survs]
+                _, score = brier_score(y_train, y_test_filtered, preds, t)
+                scores.append(score[0])
+
+        else:
+            # For 'gboost' and 'cox_ph' models
+            survs = model.predict_survival_function(X_test_filtered[cols_x])
+            scores = []
+            for t in times:
+                preds = [fn(t) for fn in survs]
+                _, score = brier_score(y_train, y_test_filtered, preds, t)
+                scores.append(score[0])
+
+        # Create a DataFrame for this model
+        scores_df = pd.DataFrame({'time': times, name: scores})
+
+        # Merge with the main DataFrame
+        brier_curves = scores_df if brier_curves is None else brier_curves.merge(scores_df, on='time')
+
+    return brier_curves
+
+def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_folder=None):
+    """
+    Plot Brier score curves using Matplotlib with y-axis in percentage format, markers for each data point,
+    and a predefined list of colors. Optionally replace model names using a mapping.
+
+    Args:
+        brier_curves (pd.DataFrame): DataFrame containing Brier scores over time.
+                                     The 'time' column contains the x-axis values.
+        model_name_map (dict, optional): A dictionary to map original model names to display names.
+                                         For example, {'deepsurv': 'DeepSurv', 'cox_ph': 'Cox Proportional Hazard'}.
+        save_folder (str, optional): Folder to save the plot as a .png file.
+    """
+    plt.figure(figsize=(8, 6))
+
+    # Define the color list
+    color_list = [
+        "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+        "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+    ]
+
+    # Ensure the number of models does not exceed the color list length
+    models = [m for m in brier_curves.columns if m != 'time']
+    if len(models) > len(color_list):
+        raise ValueError(f"Number of models ({len(models)}) exceeds available colors ({len(color_list)})")
+
+    # Plot each column (except 'time') against the time column with assigned colors
+    for idx, m in enumerate(models):
+        color = color_list[idx]  # Assign color from the list
+
+        # Use model_name_map if provided, otherwise use original names
+        display_name = model_name_map.get(m, m) if model_name_map else m
+
+        # Plot the curve and scatter points
+        plt.plot(brier_curves['time'], brier_curves[m] * 100, label=display_name, linestyle='-', color=color)
+        plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
+
+    # Customize the plot
+    plt.title("Brier Score Curves", fontsize=14)
+    plt.xlabel("Time (years)", fontsize=12)
+    plt.ylabel("Brier Score (%)", fontsize=12)
+    plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
+
+    # Customize legend with a white background
+    legend = plt.legend()
+    legend.get_frame().set_facecolor('white')
+    legend.get_frame().set_edgecolor('black')
+
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+
+    # Save the plot if save_folder is provided
+    if save_folder:
+        save_path = f"{save_folder}/results/brier_curves.png"
+        plt.savefig(save_path, format='png')
+
+    plt.show()
