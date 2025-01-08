@@ -14,9 +14,18 @@ import pickle
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 import requests
+from matplotlib.font_manager import FontProperties
 
 # Add MLPVanilla and set to the safe globals for torch.load
 torch.serialization.add_safe_globals([tt.practical.MLPVanilla, set])
+
+# Download and set the custom font
+font_url = 'https://github.com/tommyngx/style/blob/main/Poppins.ttf?raw=true'
+font_path = 'Poppins.ttf'
+response = requests.get(font_url)
+with open(font_path, 'wb') as f:
+    f.write(response.content)
+font_prop = FontProperties(fname=font_path)
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
@@ -386,9 +395,9 @@ def plot_brier_curves_with_color_list(brier_curves, model_name_map=None, save_fo
         plt.scatter(brier_curves['time'], brier_curves[m] * 100, marker='o', s=20, color=color)
 
     # Customize the plot
-    plt.title("Brier Score Curves", fontsize=14)
-    plt.xlabel("Time (years)", fontsize=12)
-    plt.ylabel("Brier Score (%)", fontsize=12)
+    plt.title("Brier Score Curves", fontsize=14, fontproperties=font_prop)
+    plt.xlabel("Time (years)", fontsize=12, fontproperties=font_prop)
+    plt.ylabel("Brier Score (%)", fontsize=12, fontproperties=font_prop)
     plt.gca().yaxis.set_major_formatter(PercentFormatter(decimals=0))  # Format y-axis as percentages without decimals
 
     # Customize legend with a white background
