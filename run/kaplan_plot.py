@@ -9,7 +9,7 @@ from utils import loading_config
 from evaluate import load_models_and_results
 from sksurv.functions import StepFunction
 
-def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None):
+def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_plot, cols_x, time_points, model_name_map=None, title='Kaplan-Meier vs Models Survival Curve', save_folder=None, show_plot=False):
     """
     Plot Kaplan-Meier survival curve alongside survival curves from selected models with specified colors.
 
@@ -125,7 +125,11 @@ def plot_kaplan_meier_with_models(y_time, y_censored, models, X_test, models_to_
         save_path = f"{save_folder}/results/kaplan_meier.png"
         plt.savefig(save_path, format='png')
 
-    plt.show()
+    # Show the plot if show_plot is True
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
 
 def process_folder_kaplan(base_dir, keywords):
     # Load configuration
@@ -155,11 +159,16 @@ def process_folder_kaplan(base_dir, keywords):
             # Generate Kaplan-Meier plot
             time_points = np.linspace(0, 23, 230)
             models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf']
+            
+            # Ensure the summary directory exists
+            summary_dir = os.path.join(base_dir, 'summary')
+            os.makedirs(summary_dir, exist_ok=True)
+            
             plot_kaplan_meier_with_models(
                 y_time=test_y['time2event'], y_censored=test_y['censored'],
                 models=models_list, X_test=test_x, models_to_plot=models_to_plot,
                 cols_x=cols_x, time_points=time_points, model_name_map=model_name_map,
-                title=f"Kaplan-Meier vs Models Survival Curve ({folder})", save_folder=folder_path
+                title=f"Kaplan-Meier vs Models Survival Curve ({folder})", save_folder=summary_dir
             )
 
 def main():
