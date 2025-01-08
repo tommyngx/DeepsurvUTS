@@ -63,7 +63,7 @@ def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
     results_df = pd.DataFrame(results_dict).dropna(axis=1, how='all')
     #print(results_df)
 
-def plot_performance_benchmark(df, summary_dir):
+def plot_performance_benchmark(df, summary_dir, use_custom_colors=True):
     import matplotlib.pyplot as plt
     from matplotlib.font_manager import FontProperties
     import requests
@@ -89,12 +89,19 @@ def plot_performance_benchmark(df, summary_dir):
 
     # Plot cindex vs Brier scores
     fig, ax = plt.subplots(figsize=(8, 7))
-    colors = plt.get_cmap('Dark2')
+
+    if use_custom_colors:
+        color_list = [
+            "#2ca02c", "#8c564b", "#9467bd", "#d62728", "#ff7f0e",
+            "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+        ]
+    else:
+        color_list = plt.get_cmap('Dark2')
 
     for idx, model in enumerate(df['model'].unique()):
         if model == 'svm':
             continue
-        color = colors(idx / len(df['model'].unique()))
+        color = color_list[idx % len(color_list)] if use_custom_colors else color_list(idx / len(df['model'].unique()))
         marker = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'h'][idx % 10]
         model_df = df[df['model'] == model]
         x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
@@ -122,11 +129,13 @@ def main():
     parser = argparse.ArgumentParser(description="Retrieve and print CSV files from subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
+    parser.add_argument('--color', action='store_false', help="Use colormap instead of custom color list.")
     args = parser.parse_args()
 
     base_dir = args.folder
     keywords = args.keyword.split('_')
     summary_dir = os.path.join(base_dir, 'summary')
+    use_custom_colors = not args.color
 
     # Initialize a dictionary to store the results
     results_dict = {'model': [], '5risks_brier': [], '11risks_brier': [], '22risks_brier': []}
@@ -149,7 +158,7 @@ def main():
         #print(final_df)
 
         # Plot performance benchmark
-        plot_performance_benchmark(final_df, summary_dir)
+        plot_performance_benchmark(final_df, summary_dir, use_custom_colors)
     else:
         print("No matching CSV files found.")
 
