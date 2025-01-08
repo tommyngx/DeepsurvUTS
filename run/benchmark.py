@@ -110,7 +110,8 @@ def plot_performance_benchmark(df, summary_dir):
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
-    ax.grid(True, color='#d3d3d3')  # Lighter grey color
+    #ax.grid(True, color='#d3d3d3')  # Lighter grey color
+    ax.grid(True, linestyle='--', alpha=0.7)
 
     # Save the plot
     plot_path = os.path.join(summary_dir, 'performance_benchmark.png')
