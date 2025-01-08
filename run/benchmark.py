@@ -79,7 +79,8 @@ def plot_performance_benchmark(df, summary_dir, keywords, use_custom_colors=True
         x = model_df[['5risks_brier', '11risks_brier', '22risks_brier']].values.flatten()
         y = model_df[['5risks_cindex', '11risks_cindex', '22risks_cindex']].values.flatten()
         ax.plot(x, y, marker=marker, label=model_name_map.get(model, model), color=color)
-        for i, txt in enumerate(['5', '11', '22']):
+        #for i, txt in enumerate(['5', '11', '22']):
+        for i, txt in enumerate(['5', '8', '22']):
             ax.annotate(txt, (x[i], y[i] + 0.001), fontproperties=font_prop)  # Move annotation higher
 
     ax.set_xlabel('Brier Score', fontproperties=font_prop, fontsize=14)
