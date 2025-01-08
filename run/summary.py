@@ -98,7 +98,7 @@ def plot_performance_benchmark(df, summary_dir):
     ax.set_xlabel('Brier Score', fontproperties=font_prop, fontsize=14)
     ax.set_ylabel('C-index', fontproperties=font_prop, fontsize=14)
     ax.set_title('Performance Benchmark: C-index vs Brier Score', fontproperties=font_prop, fontsize=18)
-    legend = ax.legend(prop=font_prop)
+    legend = ax.legend(prop=font_prop, loc='lower left', fontsize=12)
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('black')
 
