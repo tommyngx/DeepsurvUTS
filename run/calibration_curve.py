@@ -140,7 +140,8 @@ def process_folder_calibration(base_dir, keywords, threshold, save_folder):
     
     print(all_probs_df)
     # Plot the calibration curve
-    models_to_plot = all_probs_df['model'].unique()
+    #models_to_plot = all_probs_df['model'].unique()
+    models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf','svm']
     plot_10_year_calibration_curve(
         models_to_plot=models_to_plot,
         all_probs_df=all_probs_df,
