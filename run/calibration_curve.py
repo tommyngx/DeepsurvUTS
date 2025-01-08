@@ -29,6 +29,9 @@ def plot_10_year_calibration_curve(models_to_plot, all_probs_df, time_col, censo
     # Create Actual Outcome Column
     all_probs_df['Actual Outcome'] = ((all_probs_df[time_col] <= threshold) & (all_probs_df[censored_col] == 1)).astype(int)
 
+    # Plot the perfect calibration line
+    plt.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Perfect Calibration')
+
     # Loop through models and plot calibration curves
     for model_name in models_to_plot:
         if model_name in all_probs_df.columns:
