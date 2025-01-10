@@ -174,6 +174,23 @@ def process_folder_shap(base_dir, keywords, include_deepsurv):
             xplainer_dir = os.path.join(base_dir, 'xplainer')
             os.makedirs(xplainer_dir, exist_ok=True)
 
+            # Generate SHAP plots for the 'deepsurv' model if included
+            if include_deepsurv and 'deepsurv' in models_list:
+                shap_values_val_deepsurv = plot_shap_values_for_deepsurv(
+                    model=models_list['deepsurv'],
+                    X_train=train_x,
+                    y_train= train_y,
+                    X_val=test_x,
+                    cols_x=cols_x,
+                    scaler=scaler
+                )
+
+                # Save the SHAP values for 'deepsurv'
+                shap_values_save_path_deepsurv = os.path.join(xplainer_dir, f'shap_values_deepsurv_{"_".join(keywords)}.pkl')
+                with open(shap_values_save_path_deepsurv, 'wb') as f:
+                    pickle.dump(shap_values_val_deepsurv, f)
+                print(f"SHAP values saved at: {shap_values_save_path_deepsurv}")
+
             # Generate SHAP plots for the 'cox_ph' model
             shap_values_val_coxph = plot_shap_values_for_ml_model(
                 model=models_list['cox_ph'],
@@ -208,22 +225,6 @@ def process_folder_shap(base_dir, keywords, include_deepsurv):
                 pickle.dump(shap_values_val_gboost, f)
             print(f"SHAP values saved at: {shap_values_save_path_gboost}")
 
-            # Generate SHAP plots for the 'deepsurv' model if included
-            if include_deepsurv and 'deepsurv' in models_list:
-                shap_values_val_deepsurv = plot_shap_values_for_deepsurv(
-                    model=models_list['deepsurv'],
-                    X_train=train_x,
-                    y_train= train_y,
-                    X_val=test_x,
-                    cols_x=cols_x,
-                    scaler=scaler
-                )
-
-                # Save the SHAP values for 'deepsurv'
-                shap_values_save_path_deepsurv = os.path.join(xplainer_dir, f'shap_values_deepsurv_{"_".join(keywords)}.pkl')
-                with open(shap_values_save_path_deepsurv, 'wb') as f:
-                    pickle.dump(shap_values_val_deepsurv, f)
-                print(f"SHAP values saved at: {shap_values_save_path_deepsurv}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots for models in subfolders.")
