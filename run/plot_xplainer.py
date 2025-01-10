@@ -111,7 +111,8 @@ def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots from explainers in subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
-    parser.add_argument('--model', type=str, required=True, choices=['gboost', 'coxph'], help="Model to select for SHAP explainer (gboost or coxph).")
+    parser.add_argument('--model', type=str, required=True, choices=['gboost', 'coxph', 'deepsurv'], 
+                      help="Model to select for SHAP explainer (gboost, coxph, or deepsurv).")
     args = parser.parse_args()
 
     base_dir = args.folder
