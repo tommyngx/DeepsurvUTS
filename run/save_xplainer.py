@@ -80,45 +80,33 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
 
 
 # Updated function for SHAP with time interpolation
-def plot_shap_values_for_deepsurv(model, X_train, X_val, scaler, cols_x, times):
-    """
-    Compute and plot SHAP values for PyCox DeepSurv models with time interpolation.
-
-    Args:
-        model: Trained PyCox DeepSurv model.
-        X_train (pd.DataFrame): Scaled training feature data.
-        X_val (pd.DataFrame): Scaled validation feature data.
-        scaler: Fitted scaler used for preprocessing features.
-        cols_x (list): List of feature column names.
-        times (list or np.ndarray): Time points to aggregate survival probabilities.
-
-    Returns:
-        shap.Explanation: SHAP values for the validation dataset.
-    """
-    # Reverse scaling for SHAP interpretability
-    print("Reversing scaling for interpretability...")
+def plot_shap_values_for_deepsur(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
+    # Reverse scaling for SHAP interpretation
     X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
     X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
 
-    # Wrap the PyCox model's prediction method for SHAP
+    # Initialize SHAP Explainer for DeepSurv
+    print("Initializing SHAP explainer for DeepSurv...")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    X_train_tensor = torch.tensor(X_train_original.values, dtype=torch.float32).to(device)
+    X_val_tensor = torch.tensor(X_val_original.values, dtype=torch.float32).to(device)
+
+    # Precompute survival probabilities for training data
+    survival_preds_train = model.predict_surv_df(X_train_tensor)
+    mean_probs_train = survival_preds_train.mean(axis=0).values
+
     def model_predict(X):
         """
         Custom prediction function for SHAP.
         Predicts interpolated survival probabilities at specified time points.
         """
-        X_tensor = torch.tensor(X, dtype=torch.float32)  # Convert to PyTorch tensor
+        X_tensor = torch.tensor(X, dtype=torch.float32).to(device)  # Convert to PyTorch tensor
         survival_preds = model.predict_surv_df(X_tensor)  # Predict survival curves
 
-        # Interpolate survival probabilities at the specified times
-        interpolated_probs = survival_preds.reindex(
-            survival_preds.index.union(times)
-        ).interpolate(method="index").loc[times]
-
         # Average over time points for SHAP
-        mean_probs = interpolated_probs.mean(axis=0)
-        return mean_probs.values
-
-    # Initialize SHAP KernelExplainer
+        mean_probs = survival_preds.mean(axis=0).values
+        return mean_probs
+    
     print("Initializing SHAP KernelExplainer...")
     explainer = shap.Explainer(model_predict, X_train_original.values)
 
@@ -139,6 +127,7 @@ def plot_shap_values_for_deepsurv(model, X_train, X_val, scaler, cols_x, times):
     #top_feature = cols_x[np.argmax(abs(shap_values_val.values).mean(axis=0))]
     #print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
     #shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, feature_names=cols_x)
+    return shap_values_val
 
 
 def process_folder_shap(base_dir, keywords):
@@ -220,8 +209,7 @@ def process_folder_shap(base_dir, keywords):
                     X_train=train_x,
                     X_val=test_x,
                     cols_x=cols_x,
-                    scaler=scaler,
-                    times=config['times']
+                    scaler=scaler
                 )
 
                 # Save the SHAP values for 'deepsurv'
