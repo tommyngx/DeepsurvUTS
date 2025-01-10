@@ -17,19 +17,6 @@ from matplotlib.ticker import PercentFormatter
 import requests
 from matplotlib.font_manager import FontProperties
 
-# Custom handling for RandomState
-def custom_load(file):
-    def randomstate_ctor(*args, **kwargs):
-        return np.random.RandomState(*args, **kwargs)
-    
-    class CustomUnpickler(pickle.Unpickler):
-        def find_class(self, module, name):
-            if name == 'RandomState':
-                return randomstate_ctor
-            return super().find_class(module, name)
-    
-    return CustomUnpickler(file).load()
-
 # Load configuration from YAML file
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml'), 'r') as file:
     config = yaml.safe_load(file)
@@ -98,7 +85,7 @@ def load_models_and_results(path_dir, cols_x, models_dl=['deepsurv', 'deephit'])
     for n in files_ml:
         name = n.replace('_ML', '').replace('.pkl', '')
         with open(os.path.join(models_folder, n), 'rb') as f:
-            models[name] = custom_load(f)
+            models[name] = pickle.load(f)
 
     # Load deep learning models using parameters from table_final
     files_dl = [p for p in os.listdir(models_folder) if '_DL.pt' in p]
