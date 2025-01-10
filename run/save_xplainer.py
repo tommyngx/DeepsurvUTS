@@ -88,8 +88,11 @@ def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x
     # Initialize SHAP Explainer for DeepSurv
     print("Initializing SHAP explainer for DeepSurv...")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    X_train_tensor = torch.tensor(X_train_original.values, dtype=torch.float32).to(device)
-    X_val_tensor = torch.tensor(X_val_original.values, dtype=torch.float32).to(device)
+    #X_train_tensor = torch.tensor(X_train_original.values, dtype=torch.float32).to(device)
+    #X_val_tensor = torch.tensor(X_val_original.values, dtype=torch.float32).to(device)
+
+    X_train_tensor = torch.tensor(X_train[cols_x].values, dtype=torch.float32).to(device)
+    X_val_tensor = torch.tensor(X_val[cols_x].values, dtype=torch.float32).to(device)
 
     # Precompute survival probabilities for training data
     survival_preds_train = model.predict_surv_df(X_train_tensor)
@@ -104,15 +107,18 @@ def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x
         survival_preds = model.predict_surv_df(X_tensor)  # Predict survival curves
 
         # Average over time points for SHAP
-        mean_probs = survival_preds.mean(axis=0).values
+        #mean_probs = survival_preds.mean(axis=0).values
+        mean_probs = 1 - survival_preds.iloc[10].values
         return mean_probs
     
     print("Initializing SHAP KernelExplainer...")
+    #explainer = shap.Explainer(model_predict, X_train_original.values)
     explainer = shap.Explainer(model_predict, X_train_original.values)
-
+    
     # Compute SHAP values for the validation dataset
     print("Computing SHAP values for validation dataset...")
-    shap_values_val = explainer(X_val_original.values)
+    shap_values_val = explainer(X_val[cols_x].values)
+    shap_values_val.data = X_val_original.values
 
     # Plot SHAP waterfall plot for the first validation sample
     #print("Generating SHAP waterfall plot for the first validation sample...")
