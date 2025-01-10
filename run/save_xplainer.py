@@ -207,6 +207,7 @@ def process_folder_shap(base_dir, keywords):
                 shap_values_val_deepsurv = plot_shap_values_for_deepsurv(
                     model=models_list['deepsurv'],
                     X_train=train_x,
+                    y_train= train_y,
                     X_val=test_x,
                     cols_x=cols_x,
                     scaler=scaler
