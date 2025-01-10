@@ -49,7 +49,7 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     print("Computing SHAP values for the validation dataset...")
     shap_values_val = explainer(X_val[cols_x])
     shap_values_val.data = X_val_original.values
-    print(X_val_original.values)
+    #print(X_val_original.values)
 
     # Plot SHAP waterfall plot for the first validation sample
     #print("Generating SHAP waterfall plot for the first validation sample...")
