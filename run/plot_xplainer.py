@@ -18,11 +18,10 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         model_name (str): Name of the model.
         font_prop (FontProperties): Font properties for the plot.
     """
-    plt.close()
     
     # Plot SHAP global bar plot
     print("Generating SHAP global bar plot...")
-    plt.gcf().set_size_inches(14,8)
+    plt.gcf().set_size_inches(10,8)
     shap.plots.bar(shap_values_val, max_display=10, show=False)
     if save_folder:
         save_path = f"{save_folder}/shap_global_bar_{model_name}.png"
@@ -32,7 +31,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
 
     # Plot SHAP local bar plot for the first validation sample
     print("Generating SHAP local bar plot for the first validation sample...")
-    plt.gcf().set_size_inches(14,8)
+    plt.gcf().set_size_inches(10,8)
     shap.plots.bar(shap_values_val[0], show=False)
     if save_folder:
         save_path = f"{save_folder}/shap_local_bar_{model_name}.png"
