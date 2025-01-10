@@ -20,6 +20,15 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     """
     # Plot SHAP waterfall plot for the first validation sample
     print("Generating SHAP waterfall plot for the first validation sample...")
+    
+    # Plot SHAP global bar plot
+    print("Generating SHAP global bar plot...")
+    shap.plots.bar(shap_values_val, max_display=10, show=False)
+    if save_folder:
+        save_path = f"{save_folder}/shap_global_bar_{model_name}.png"
+        plt.savefig(save_path, format='png')
+        print(f"SHAP global bar plot saved at: {save_path}")
+
     shap.plots.waterfall(shap_values_val[0])
     if save_folder:
         shap.plots.waterfall(shap_values_val[0], show=False)
@@ -43,14 +52,6 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         save_path = f"{save_folder}/shap_dependence_{model_name}.png"
         plt.savefig(save_path, format='png')
         print(f"SHAP dependence plot saved at: {save_path}")
-
-    # Plot SHAP global bar plot
-    print("Generating SHAP global bar plot...")
-    shap.plots.bar(shap_values_val, max_display=10, show=False)
-    if save_folder:
-        save_path = f"{save_folder}/shap_global_bar_{model_name}.png"
-        plt.savefig(save_path, format='png')
-        print(f"SHAP global bar plot saved at: {save_path}")
 
 def process_folder_explainer(base_dir, keywords, model):
     # Load configuration
