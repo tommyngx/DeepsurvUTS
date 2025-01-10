@@ -42,11 +42,13 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
 
     # Initialize SHAP Explainer
     print("Initializing SHAP explainer...")
-    explainer = shap.Explainer(model.predict, X_train_original)
+    #explainer = shap.Explainer(model.predict, X_train_original)
+    explainer = shap.Explainer(model.predict, X_val[cols_x])
 
     # Compute SHAP values for validation dataset
     print("Computing SHAP values for the validation dataset...")
-    shap_values_val = explainer(X_val_original)
+    shap_values_val = explainer(X_val[cols_x])
+    shap_values_val.data = X_val_original.values
 
     # Plot SHAP waterfall plot for the first validation sample
     #print("Generating SHAP waterfall plot for the first validation sample...")
