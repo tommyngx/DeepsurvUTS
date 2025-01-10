@@ -41,12 +41,12 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     model.fit(X_train_original, y_train)
 
     # Initialize SHAP Explainer
-    print("Initializing SHAP explainer...")
+    #print("Initializing SHAP explainer...")
     #explainer = shap.Explainer(model.predict, X_train_original)
     explainer = shap.Explainer(model.predict, X_val[cols_x])
 
     # Compute SHAP values for validation dataset
-    print("Computing SHAP values for the validation dataset...")
+    #print("Computing SHAP values for the validation dataset...")
     shap_values_val = explainer(X_val[cols_x])
     shap_values_val.data = X_val_original.values
     #print(X_val_original.values)
@@ -114,13 +114,13 @@ def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x
         mean_probs =  survival_preds.iloc[10].values
         return mean_probs
     
-    print("Initializing SHAP KernelExplainer...")
+    #print("Initializing SHAP KernelExplainer...")
     #explainer = shap.Explainer(model_predict, X_train_original.values)
     explainer = shap.Explainer(model_predict, X_val[cols_x].values)
     #explainer = shap.Explainer(model_predict, X_val[cols_x])
     
     # Compute SHAP values for the validation dataset
-    print("Computing SHAP values for validation dataset...")
+    #print("Computing SHAP values for validation dataset...")
     #shap_values_val = explainer(X_val[cols_x].values)
     shap_values_val = explainer(X_val[cols_x])
     shap_values_val.data = X_val_original.values
