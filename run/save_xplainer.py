@@ -111,7 +111,7 @@ def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x
 
         # Average over time points for SHAP
         #mean_probs = survival_preds.mean(axis=0).values
-        mean_probs =  survival_preds.iloc[10].values
+        mean_probs = 1 - survival_preds.iloc[15].values
         return mean_probs
     
     #print("Initializing SHAP KernelExplainer...")
