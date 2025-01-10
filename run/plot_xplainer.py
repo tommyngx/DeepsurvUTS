@@ -18,22 +18,6 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         model_name (str): Name of the model.
         font_prop (FontProperties): Font properties for the plot.
     """
-    # Plot SHAP waterfall plot for the first validation sample
-    print("Generating SHAP waterfall plot for the first validation sample...")
-    shap.plots.waterfall(shap_values_val[0])
-    if save_folder:
-        shap.plots.waterfall(shap_values_val[0], show=False)
-        save_path = f"{save_folder}/shap_waterfall_{model_name}.png"
-        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
-        print(f"SHAP waterfall plot saved at: {save_path}")
-
-    # Plot SHAP summary plot for validation dataset
-    print("Generating SHAP summary plot for validation dataset...")
-    shap.summary_plot(shap_values_val, X_val, show=False)
-    if save_folder:
-        save_path = f"{save_folder}/shap_summary_{model_name}.png"
-        plt.savefig(save_path, format='png')
-        print(f"SHAP summary plot saved at: {save_path}")
 
     # Plot SHAP global bar plot
     print("Generating SHAP global bar plot...")
@@ -51,6 +35,23 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         plt.savefig(save_path, format='png')
         print(f"SHAP local bar plot saved at: {save_path}")
 
+    # Plot SHAP waterfall plot for the first validation sample
+    print("Generating SHAP waterfall plot for the first validation sample...")
+    shap.plots.waterfall(shap_values_val[0])
+    if save_folder:
+        shap.plots.waterfall(shap_values_val[0], show=False)
+        save_path = f"{save_folder}/shap_waterfall_{model_name}.png"
+        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        print(f"SHAP waterfall plot saved at: {save_path}")
+
+    # Plot SHAP summary plot for validation dataset
+    print("Generating SHAP summary plot for validation dataset...")
+    shap.summary_plot(shap_values_val, X_val, show=False)
+    if save_folder:
+        save_path = f"{save_folder}/shap_summary_{model_name}.png"
+        plt.savefig(save_path, format='png')
+        print(f"SHAP summary plot saved at: {save_path}")
+        
     # Plot SHAP dependence plot for the most important feature
     top_feature = X_val.columns[np.argmax(shap_values_val.values.mean(axis=0))]
     print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
