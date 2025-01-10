@@ -108,12 +108,12 @@ def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x
 
         # Average over time points for SHAP
         #mean_probs = survival_preds.mean(axis=0).values
-        mean_probs = 1 - survival_preds.iloc[10].values
+        mean_probs = survival_preds.iloc[10].values
         return mean_probs
     
     print("Initializing SHAP KernelExplainer...")
     #explainer = shap.Explainer(model_predict, X_train_original.values)
-    explainer = shap.Explainer(model_predict, X_train[cols_x].values)
+    explainer = shap.Explainer(model_predict, X_val[cols_x].values)
     
     # Compute SHAP values for the validation dataset
     print("Computing SHAP values for validation dataset...")
