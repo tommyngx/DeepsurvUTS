@@ -25,7 +25,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     plt.gcf().set_size_inches(11,6)
     if save_folder:
         save_path = f"{save_folder}/shap_global_bar_{model_name}.png"
-        plt.savefig(save_path, format='png',bbox_inches='tight', dpi=200)
+        plt.savefig(save_path, format='png',bbox_inches='tight', dpi=150)
         plt.close()
         print(f"SHAP global bar plot saved at: {save_path}")
 
@@ -35,7 +35,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     plt.gcf().set_size_inches(11,6)
     if save_folder:
         save_path = f"{save_folder}/shap_local_bar_{model_name}.png"
-        plt.savefig(save_path, format='png',bbox_inches='tight', dpi=200)
+        plt.savefig(save_path, format='png',bbox_inches='tight', dpi=150)
         plt.close()
         print(f"SHAP local bar plot saved at: {save_path}")
 
@@ -45,7 +45,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     if save_folder:
         shap.plots.waterfall(shap_values_val[0], show=False)
         save_path = f"{save_folder}/shap_waterfall_{model_name}.png"
-        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=150)
         plt.close()
         print(f"SHAP waterfall plot saved at: {save_path}")
 
@@ -54,7 +54,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     shap.summary_plot(shap_values_val, X_val, show=False)
     if save_folder:
         save_path = f"{save_folder}/shap_summary_{model_name}.png"
-        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=150)
         plt.close()
         print(f"SHAP summary plot saved at: {save_path}")
 
