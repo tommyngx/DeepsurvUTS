@@ -79,7 +79,7 @@ def process_folder_explainer(base_dir, keywords, model):
 
             # Load SHAP values
             shap_values_file = f'shap_values_{model}_{"_".join(keywords)}.pkl'
-            shap_values_path = os.path.join(folder_path, 'xplainer', shap_values_file)
+            shap_values_path = os.path.join(base_dir, 'xplainer', shap_values_file)
 
             if os.path.exists(shap_values_path):
                 with open(shap_values_path, 'rb') as f:
