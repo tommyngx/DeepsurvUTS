@@ -49,33 +49,33 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     shap_values_val = explainer(X_val_original)
 
     # Plot SHAP waterfall plot for the first validation sample
-    print("Generating SHAP waterfall plot for the first validation sample...")
-    shap.plots.waterfall(shap_values_val[0])
-    if save_folder:
-        shap.plots.waterfall(shap_values_val[0], show=False)
+    #print("Generating SHAP waterfall plot for the first validation sample...")
+    #shap.plots.waterfall(shap_values_val[0])
+    #if save_folder:
+    #    shap.plots.waterfall(shap_values_val[0], show=False)
         #save_path = f"{save_folder}/results/shap_waterfall.png"
-        save_path = f"{save_folder}/shap_waterfall.png"
-        plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
-        print(f"SHAP waterfall plot saved at: {save_path}")
+        #save_path = f"{save_folder}/shap_waterfall.png"
+        #plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
+        #print(f"SHAP waterfall plot saved at: {save_path}")
 
     # Plot SHAP summary plot for validation dataset
-    print("Generating SHAP summary plot for validation dataset...")
-    shap.summary_plot(shap_values_val, X_val_original, show=False)
-    if save_folder:
+    #print("Generating SHAP summary plot for validation dataset...")
+    #shap.summary_plot(shap_values_val, X_val_original, show=False)
+    #if save_folder:
         #save_path = f"{save_folder}/results/shap_summary.png"
-        save_path = f"{save_folder}/shap_summary.png"
-        plt.savefig(save_path, format='png')
-        print(f"SHAP summary plot saved at: {save_path}")
+        #save_path = f"{save_folder}/shap_summary.png"
+        #plt.savefig(save_path, format='png')
+        #print(f"SHAP summary plot saved at: {save_path}")
 
     # Plot SHAP dependence plot for the most important feature
-    top_feature = X_val_original.columns[np.argmax(shap_values_val.values.mean(axis=0))]
-    print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
-    shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, show=False)
-    if save_folder:
+    #top_feature = X_val_original.columns[np.argmax(shap_values_val.values.mean(axis=0))]
+    #print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
+    #shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, show=False)
+    #if save_folder:
         #save_path = f"{save_folder}/results/shap_dependence.png"
-        save_path = f"{save_folder}/shap_dependence.png"
-        plt.savefig(save_path, format='png')
-        print(f"SHAP dependence plot saved at: {save_path}")
+        #save_path = f"{save_folder}/shap_dependence.png"
+        #plt.savefig(save_path, format='png')
+        #print(f"SHAP dependence plot saved at: {save_path}")
     return shap_values_val
 
 
