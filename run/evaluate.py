@@ -28,7 +28,8 @@ model_name_map = config['model_name_map']
 color_list = config['color_list']
 
 # Add MLPVanilla and set to the safe globals for torch.load
-torch.serialization.add_safe_globals([tt.practical.MLPVanilla, set])
+torch.serialization.register_safe_class(tt.practical.MLPVanilla)
+torch.serialization.register_safe_class(set)
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
