@@ -31,11 +31,10 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
         shap.Explanation: SHAP values for the validation dataset.
     """
     # Reverse scaling for SHAP interpretation
-    #X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
-    #X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
-    
-    X_train_original = X_train[cols_x]
-    X_val_original = X_val[cols_x]
+    X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
+    X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
+    #X_train_original = X_train[cols_x]
+    #X_val_original = X_val[cols_x]
 
     # Fit the model
     print(f"Training model: {model.__class__.__name__}...")
