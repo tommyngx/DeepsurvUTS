@@ -21,7 +21,8 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     
     # Plot SHAP global bar plot
     print("Generating SHAP global bar plot...")
-    shap.plots.bar(shap_values_val, max_display=10, figsize=[8,6], show=False)
+    shap.plots.bar(shap_values_val, max_display=10, show=False)
+    plt.gcf().set_size_inches(9,6)
     if save_folder:
         save_path = f"{save_folder}/shap_global_bar_{model_name}.png"
         plt.savefig(save_path, format='png')
@@ -30,7 +31,8 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
 
     # Plot SHAP local bar plot for the first validation sample
     print("Generating SHAP local bar plot for the first validation sample...")
-    shap.plots.bar(shap_values_val[0], figsize=[8,6],  show=False)
+    shap.plots.bar(shap_values_val[0],  show=False)
+    plt.gcf().set_size_inches(9,6)
     if save_folder:
         save_path = f"{save_folder}/shap_local_bar_{model_name}.png"
         plt.savefig(save_path, format='png')
