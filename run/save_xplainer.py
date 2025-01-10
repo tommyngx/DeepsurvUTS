@@ -51,7 +51,8 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     shap.plots.waterfall(shap_values_val[0])
     if save_folder:
         shap.plots.waterfall(shap_values_val[0], show=False)
-        save_path = f"{save_folder}/results/shap_waterfall.png"
+        #save_path = f"{save_folder}/results/shap_waterfall.png"
+        save_path = f"{save_folder}/shap_waterfall.png"
         plt.savefig(save_path, format='png', bbox_inches='tight', dpi=200)
         print(f"SHAP waterfall plot saved at: {save_path}")
 
@@ -59,7 +60,8 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     print("Generating SHAP summary plot for validation dataset...")
     shap.summary_plot(shap_values_val, X_val_original, show=False)
     if save_folder:
-        save_path = f"{save_folder}/results/shap_summary.png"
+        #save_path = f"{save_folder}/results/shap_summary.png"
+        save_path = f"{save_folder}/shap_summary.png"
         plt.savefig(save_path, format='png')
         print(f"SHAP summary plot saved at: {save_path}")
 
