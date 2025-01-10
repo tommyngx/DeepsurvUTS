@@ -51,15 +51,15 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         save_path = f"{save_folder}/shap_summary_{model_name}.png"
         plt.savefig(save_path, format='png')
         print(f"SHAP summary plot saved at: {save_path}")
-        
+
     # Plot SHAP dependence plot for the most important feature
-    top_feature = X_val.columns[np.argmax(shap_values_val.values.mean(axis=0))]
-    print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
-    shap.dependence_plot(top_feature, shap_values_val.values, X_val, show=False)
-    if save_folder:
-        save_path = f"{save_folder}/shap_dependence_{model_name}.png"
-        plt.savefig(save_path, format='png')
-        print(f"SHAP dependence plot saved at: {save_path}")
+    #top_feature = X_val.columns[np.argmax(shap_values_val.values.mean(axis=0))]
+    #print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
+    #shap.dependence_plot(top_feature, shap_values_val.values, X_val, show=False)
+    #if save_folder:
+    #    save_path = f"{save_folder}/shap_dependence_{model_name}.png"
+    #    plt.savefig(save_path, format='png')
+    #    print(f"SHAP dependence plot saved at: {save_path}")
 
 def process_folder_explainer(base_dir, keywords, model):
     # Load configuration
