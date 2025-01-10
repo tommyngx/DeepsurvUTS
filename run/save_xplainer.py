@@ -127,18 +127,18 @@ def plot_shap_values_for_deepsurv(model, X_train, X_val, scaler, cols_x, times):
     shap_values_val = explainer(X_val_original.values)
 
     # Plot SHAP waterfall plot for the first validation sample
-    print("Generating SHAP waterfall plot for the first validation sample...")
-    shap.waterfall_plot(shap_values_val[0], feature_names=cols_x)
-    plt.show()
+    #print("Generating SHAP waterfall plot for the first validation sample...")
+    #shap.waterfall_plot(shap_values_val[0], feature_names=cols_x)
+    #plt.show()
 
     # Plot SHAP summary plot for the entire validation dataset
-    print("Generating SHAP summary plot for the validation dataset...")
-    shap.summary_plot(shap_values_val, features=X_val_original, feature_names=cols_x)
+    #print("Generating SHAP summary plot for the validation dataset...")
+    #shap.summary_plot(shap_values_val, features=X_val_original, feature_names=cols_x)
 
     # Plot SHAP dependence plot for the most important feature
-    top_feature = cols_x[np.argmax(abs(shap_values_val.values).mean(axis=0))]
-    print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
-    shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, feature_names=cols_x)
+    #top_feature = cols_x[np.argmax(abs(shap_values_val.values).mean(axis=0))]
+    #print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
+    #shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, feature_names=cols_x)
 
 
 def process_folder_shap(base_dir, keywords):
@@ -212,6 +212,23 @@ def process_folder_shap(base_dir, keywords):
             with open(shap_values_save_path_gboost, 'wb') as f:
                 pickle.dump(shap_values_val_gboost, f)
             print(f"SHAP values saved at: {shap_values_save_path_gboost}")
+
+            # Generate SHAP plots for the 'deepsurv' model
+            if 'deepsurv' in models_list:
+                shap_values_val_deepsurv = plot_shap_values_for_deepsurv(
+                    model=models_list['deepsurv'],
+                    X_train=train_x,
+                    X_val=test_x,
+                    cols_x=cols_x,
+                    scaler=scaler,
+                    times=config['times']
+                )
+
+                # Save the SHAP values for 'deepsurv'
+                shap_values_save_path_deepsurv = os.path.join(xplainer_dir, f'shap_values_deepsurv_{"_".join(keywords)}.pkl')
+                with open(shap_values_save_path_deepsurv, 'wb') as f:
+                    pickle.dump(shap_values_val_deepsurv, f)
+                print(f"SHAP values saved at: {shap_values_save_path_deepsurv}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots for models in subfolders.")
