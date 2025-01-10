@@ -28,20 +28,7 @@ model_name_map = config['model_name_map']
 color_list = config['color_list']
 
 # Add MLPVanilla and set to the safe globals for torch.load
-import pickle
-
-class CustomPickler(pickle.Pickler):
-    def reducer_override(self, obj):
-        if isinstance(obj, tt.practical.MLPVanilla):
-            return (tt.practical.MLPVanilla, (obj.in_features, obj.out_features, obj.num_nodes))
-        return NotImplemented
-
-def custom_load(file):
-    return pickle.load(file)
-
-def custom_save(obj, file):
-    with CustomPickler(file) as pickler:
-        pickler.dump(obj)
+torch.serialization.add_safe_globals([tt.practical.MLPVanilla, set])
 
 def load_model(filename, path, model_obj, in_features, out_features, params):
     num_nodes = [int(params["n_nodes"])] * (int(params["n_layers"]))
@@ -59,12 +46,13 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
             in_features=in_features, out_features=out_features, num_nodes=num_nodes, **params)
         model = model_obj(net)
     
-    # Load the model with custom pickle handling
+    # Load the model with weights_only=True and map to CPU
     try:
-        with open(os.path.join(path, filename), 'rb') as f:
-            model = custom_load(f)
+        model.load_net(os.path.join(path, filename), weights_only=False, map_location=torch.device('cpu'))
     except Exception as e:
-        print(f"Error loading {filename}: {e}")
+        print(f"Error loading {filename} with weights_only=True: {e}")
+        print("Attempting to load with weights_only=False...")
+        model.load_net(os.path.join(path, filename), weights_only=False, map_location=torch.device('cpu'))
 
     return model
 
