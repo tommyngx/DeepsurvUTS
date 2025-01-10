@@ -174,11 +174,11 @@ def process_folder_shap(base_dir, keywords):
             os.makedirs(summary_dir, exist_ok=True)
 
             # Ensure the xplainer directory exists
-            xplainer_dir = os.path.join(folder_path, 'xplainer')
+            xplainer_dir = os.path.join(base_dir, 'xplainer')
             os.makedirs(xplainer_dir, exist_ok=True)
 
             # Generate SHAP plots for the 'cox_ph' model
-            explainer_exp, x1, y1 = plot_shap_values_for_ml_model(
+            explainer_exp_coxph, x1, y1 = plot_shap_values_for_ml_model(
                 model=models_list['cox_ph'],
                 X_train=train_x,
                 y_train=train_y,
@@ -188,11 +188,28 @@ def process_folder_shap(base_dir, keywords):
                 save_folder=summary_dir
             )
 
-            # Save the SHAP explainer
-            explainer_save_path = os.path.join(xplainer_dir, f'xplainer_coxph_{"_".join(keywords)}.pt')
-            with open(explainer_save_path, 'wb') as f:
-                pickle.dump(explainer_exp, f)
-            print(f"SHAP explainer saved at: {explainer_save_path}")
+            # Save the SHAP explainer for 'cox_ph'
+            explainer_save_path_coxph = os.path.join(xplainer_dir, f'xplainer_coxph_{"_".join(keywords)}.pt')
+            with open(explainer_save_path_coxph, 'wb') as f:
+                pickle.dump(explainer_exp_coxph, f)
+            print(f"SHAP explainer saved at: {explainer_save_path_coxph}")
+
+            # Generate SHAP plots for the 'gboost' model
+            explainer_exp_gboost, x2, y2 = plot_shap_values_for_ml_model(
+                model=models_list['gboost'],
+                X_train=train_x,
+                y_train=train_y,
+                X_val=test_x,
+                cols_x=cols_x,
+                scaler=scaler,
+                save_folder=summary_dir
+            )
+
+            # Save the SHAP explainer for 'gboost'
+            explainer_save_path_gboost = os.path.join(xplainer_dir, f'xplainer_gboost_{"_".join(keywords)}.pt')
+            with open(explainer_save_path_gboost, 'wb') as f:
+                pickle.dump(explainer_exp_gboost, f)
+            print(f"SHAP explainer saved at: {explainer_save_path_gboost}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots for models in subfolders.")
