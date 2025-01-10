@@ -130,7 +130,7 @@ def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x
     return shap_values_val
 
 
-def process_folder_shap(base_dir, keywords):
+def process_folder_shap(base_dir, keywords, include_deepsurv):
     # Load configuration
     config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
 
@@ -202,8 +202,8 @@ def process_folder_shap(base_dir, keywords):
                 pickle.dump(shap_values_val_gboost, f)
             print(f"SHAP values saved at: {shap_values_save_path_gboost}")
 
-            # Generate SHAP plots for the 'deepsurv' model
-            if 'deepsurv' in models_list:
+            # Generate SHAP plots for the 'deepsurv' model if included
+            if include_deepsurv and 'deepsurv' in models_list:
                 shap_values_val_deepsurv = plot_shap_values_for_deepsurv(
                     model=models_list['deepsurv'],
                     X_train=train_x,
@@ -223,12 +223,14 @@ def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots for models in subfolders.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the base directory.")
     parser.add_argument('--keyword', type=str, required=True, help="Keywords to select folders (e.g., 'SOF_anyfx').")
+    parser.add_argument('--deepsurv', type=bool, default=False, help="Include DeepSurv model in SHAP plots (true or false).")
     args = parser.parse_args()
 
     base_dir = args.folder
     keywords = args.keyword.split('_')
+    include_deepsurv = args.deepsurv
 
-    process_folder_shap(base_dir, keywords)
+    process_folder_shap(base_dir, keywords, include_deepsurv)
 
 if __name__ == "__main__":
     main()
