@@ -7,19 +7,17 @@ import pickle
 import matplotlib.pyplot as plt
 from utils import loading_config
 
-def plot_shap_values_from_explainer(explainer, X_val, save_folder, model_name, font_prop):
+def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_name, font_prop):
     """
-    Plot SHAP values from a loaded SHAP explainer and save the plots.
+    Plot SHAP values from loaded SHAP values and save the plots.
 
     Args:
-        explainer: Loaded SHAP explainer.
+        shap_values_val (shap.Explanation): Loaded SHAP values.
         X_val (pd.DataFrame): Validation feature data.
         save_folder (str): Folder to save the SHAP plots as .png files.
         model_name (str): Name of the model.
         font_prop (FontProperties): Font properties for the plot.
     """
-    shap_values_val = explainer(X_val)
-
     # Plot SHAP waterfall plot for the first validation sample
     print("Generating SHAP waterfall plot for the first validation sample...")
     shap.plots.waterfall(shap_values_val[0])
@@ -71,20 +69,20 @@ def process_folder_explainer(base_dir, keywords, model):
             summary_dir = os.path.join(base_dir, 'summary')
             os.makedirs(summary_dir, exist_ok=True)
 
-            # Load SHAP explainers
-            xplainer_dir = os.path.join(base_dir, 'xplainer')
-            explainer_file = f'xplainer_{model}_{"_".join(keywords)}.pt'
-            explainer_path = os.path.join(xplainer_dir, explainer_file)
+            # Load SHAP values
+            shap_values_dir = os.path.join(base_dir, 'shap_values')
+            shap_values_file = f'shap_values_{model}_{"_".join(keywords)}.pkl'
+            shap_values_path = os.path.join(shap_values_dir, shap_values_file)
 
-            if os.path.exists(explainer_path):
-                with open(explainer_path, 'rb') as f:
-                    explainer = pickle.load(f)
-                print(f"Loaded SHAP explainer for model: {model}")
+            if os.path.exists(shap_values_path):
+                with open(shap_values_path, 'rb') as f:
+                    shap_values_val = pickle.load(f)
+                print(f"Loaded SHAP values for model: {model}")
 
                 # Generate SHAP plots
-                plot_shap_values_from_explainer(explainer, test_x[cols_x], summary_dir, model, font_prop)
+                plot_shap_values_from_explainer(shap_values_val, test_x[cols_x], summary_dir, model, font_prop)
             else:
-                print(f"SHAP explainer file not found: {explainer_path}")
+                print(f"SHAP values file not found: {shap_values_path}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots from explainers in subfolders.")
