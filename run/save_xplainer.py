@@ -68,7 +68,8 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
     print(f"Generating SHAP dependence plot for the top feature: {top_feature}")
     shap.dependence_plot(top_feature, shap_values_val.values, X_val_original, show=False)
     if save_folder:
-        save_path = f"{save_folder}/results/shap_dependence.png"
+        #save_path = f"{save_folder}/results/shap_dependence.png"
+        save_path = f"{save_folder}/shap_dependence.png"
         plt.savefig(save_path, format='png')
         print(f"SHAP dependence plot saved at: {save_path}")
     return explainer, X_val_original, shap_values_val
