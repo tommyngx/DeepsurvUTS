@@ -28,7 +28,7 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
         save_folder (str, optional): Folder to save the SHAP plots as .png files.
 
     Returns:
-        None
+        shap.Explanation: SHAP values for the validation dataset.
     """
     # Reverse scaling for SHAP interpretation
     X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
@@ -74,7 +74,7 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
         save_path = f"{save_folder}/shap_dependence.png"
         plt.savefig(save_path, format='png')
         print(f"SHAP dependence plot saved at: {save_path}")
-    return explainer, X_val_original, shap_values_val
+    return shap_values_val
 
 
 # Updated function for SHAP with time interpolation
@@ -91,7 +91,7 @@ def plot_shap_values_for_deepsurv(model, X_train, X_val, scaler, cols_x, times):
         times (list or np.ndarray): Time points to aggregate survival probabilities.
 
     Returns:
-        None
+        shap.Explanation: SHAP values for the validation dataset.
     """
     # Reverse scaling for SHAP interpretability
     print("Reversing scaling for interpretability...")
@@ -178,7 +178,7 @@ def process_folder_shap(base_dir, keywords):
             os.makedirs(xplainer_dir, exist_ok=True)
 
             # Generate SHAP plots for the 'cox_ph' model
-            explainer_exp_coxph, x1, y1 = plot_shap_values_for_ml_model(
+            shap_values_val_coxph = plot_shap_values_for_ml_model(
                 model=models_list['cox_ph'],
                 X_train=train_x,
                 y_train=train_y,
@@ -188,14 +188,14 @@ def process_folder_shap(base_dir, keywords):
                 save_folder=summary_dir
             )
 
-            # Save the SHAP explainer for 'cox_ph'
-            explainer_save_path_coxph = os.path.join(xplainer_dir, f'xplainer_coxph_{"_".join(keywords)}.pt')
-            with open(explainer_save_path_coxph, 'wb') as f:
-                pickle.dump(explainer_exp_coxph, f)
-            print(f"SHAP explainer saved at: {explainer_save_path_coxph}")
+            # Save the SHAP values for 'cox_ph'
+            shap_values_save_path_coxph = os.path.join(xplainer_dir, f'shap_values_coxph_{"_".join(keywords)}.pkl')
+            with open(shap_values_save_path_coxph, 'wb') as f:
+                pickle.dump(shap_values_val_coxph, f)
+            print(f"SHAP values saved at: {shap_values_save_path_coxph}")
 
             # Generate SHAP plots for the 'gboost' model
-            explainer_exp_gboost, x2, y2 = plot_shap_values_for_ml_model(
+            shap_values_val_gboost = plot_shap_values_for_ml_model(
                 model=models_list['gboost'],
                 X_train=train_x,
                 y_train=train_y,
@@ -205,11 +205,11 @@ def process_folder_shap(base_dir, keywords):
                 save_folder=summary_dir
             )
 
-            # Save the SHAP explainer for 'gboost'
-            explainer_save_path_gboost = os.path.join(xplainer_dir, f'xplainer_gboost_{"_".join(keywords)}.pt')
-            with open(explainer_save_path_gboost, 'wb') as f:
-                pickle.dump(explainer_exp_gboost, f)
-            print(f"SHAP explainer saved at: {explainer_save_path_gboost}")
+            # Save the SHAP values for 'gboost'
+            shap_values_save_path_gboost = os.path.join(xplainer_dir, f'shap_values_gboost_{"_".join(keywords)}.pkl')
+            with open(shap_values_save_path_gboost, 'wb') as f:
+                pickle.dump(shap_values_val_gboost, f)
+            print(f"SHAP values saved at: {shap_values_save_path_gboost}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate SHAP plots for models in subfolders.")
