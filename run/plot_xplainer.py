@@ -90,7 +90,7 @@ def process_folder_explainer(base_dir, keywords, model):
             test_x = pd.read_pickle(os.path.join(folder_path, 'data', 'test_x.pkl'))
 
             # Ensure the summary directory exists
-            summary_dir = os.path.join(base_dir, 'summary')
+            summary_dir = os.path.join(base_dir, 'summary', 'xplainer', '_'.join(keywords))
             os.makedirs(summary_dir, exist_ok=True)
 
             # Load SHAP values
