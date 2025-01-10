@@ -44,6 +44,14 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         plt.savefig(save_path, format='png')
         print(f"SHAP dependence plot saved at: {save_path}")
 
+    # Plot SHAP global bar plot
+    print("Generating SHAP global bar plot...")
+    shap.plots.bar(shap_values_val, max_display=10, show=False)
+    if save_folder:
+        save_path = f"{save_folder}/shap_global_bar_{model_name}.png"
+        plt.savefig(save_path, format='png')
+        print(f"SHAP global bar plot saved at: {save_path}")
+
 def process_folder_explainer(base_dir, keywords, model):
     # Load configuration
     config, font_prop, model_name_map, color_list, cols_22, cols_11, cols_5 = loading_config()
