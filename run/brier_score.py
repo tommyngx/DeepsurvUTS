@@ -102,7 +102,7 @@ def process_folder_brier(base_dir, keywords, ignore_svm=True):
             brier_curves = brier_curves[['time'] + sorted(brier_curves.columns.drop('time'))]
 
             # Ensure the summary directory exists
-            summary_dir = os.path.join(base_dir, 'summary')
+            summary_dir = os.path.join(base_dir, 'summary', 'general', '_'.join(keywords))
             os.makedirs(summary_dir, exist_ok=True)
             
             plot_brier_curves_with_color_list(brier_curves, model_name_map, color_list, font_prop, save_folder=summary_dir, keyword='_'.join(keywords))

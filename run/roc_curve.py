@@ -138,7 +138,8 @@ def main():
     base_dir = args.folder
     keywords = args.keyword.split('_')
     threshold = args.threshold
-    save_folder = os.path.join(base_dir, 'summary')
+    save_folder = os.path.join(base_dir, 'summary', 'general', '_'.join(keywords))
+    os.makedirs(save_folder, exist_ok=True)
     ignore_svm = args.ignore_svm
 
     process_folder_roc(base_dir, keywords, threshold, save_folder, ignore_svm)

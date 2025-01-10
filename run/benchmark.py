@@ -65,6 +65,7 @@ def process_folders_brier(base_dir, keywords, summary_dir, results_dict):
 
 def plot_performance_benchmark(df, summary_dir, keywords, use_custom_colors=True):
     # Ensure the summary directory exists
+    summary_dir = os.path.join(summary_dir, 'benchmark')
     os.makedirs(summary_dir, exist_ok=True)
 
     # Plot cindex vs Brier scores

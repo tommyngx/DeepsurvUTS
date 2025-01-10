@@ -158,7 +158,7 @@ def process_folder_kaplan(base_dir, keywords):
             models_to_plot = ['cox_ph', 'gboost', 'deepsurv', 'deephit', 'rsf']
             
             # Ensure the summary directory exists
-            summary_dir = os.path.join(base_dir, 'summary')
+            summary_dir = os.path.join(base_dir, 'summary', 'general', '_'.join(keywords))
             os.makedirs(summary_dir, exist_ok=True)
             
             plot_kaplan_meier_with_models(
