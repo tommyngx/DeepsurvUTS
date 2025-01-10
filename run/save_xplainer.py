@@ -80,7 +80,7 @@ def plot_shap_values_for_ml_model(model, X_train, y_train, X_val, scaler, cols_x
 
 
 # Updated function for SHAP with time interpolation
-def plot_shap_values_for_deepsur(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
+def plot_shap_values_for_deepsurv(model, X_train, y_train, X_val, scaler, cols_x, save_folder=None):
     # Reverse scaling for SHAP interpretation
     X_train_original = reverse_scaling(X_train[cols_x], scaler, feature_names=cols_x)
     X_val_original = reverse_scaling(X_val[cols_x], scaler, feature_names=cols_x)
