@@ -19,8 +19,8 @@ from matplotlib.font_manager import FontProperties
 
 # Custom handling for RandomState
 def custom_load(file):
-    def randomstate_ctor(*args):
-        return np.random.RandomState(*args)
+    def randomstate_ctor(*args, **kwargs):
+        return np.random.RandomState(*args, **kwargs)
     
     class CustomUnpickler(pickle.Unpickler):
         def find_class(self, module, name):
