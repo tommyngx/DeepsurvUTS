@@ -18,7 +18,8 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         model_name (str): Name of the model.
         font_prop (FontProperties): Font properties for the plot.
     """
-
+    plt.close()
+    
     # Plot SHAP global bar plot
     print("Generating SHAP global bar plot...")
     shap.plots.bar(shap_values_val, max_display=10, show=False)
