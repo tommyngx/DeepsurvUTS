@@ -27,7 +27,7 @@ def get_csv_files(base_dir, keywords):
                     risk_label = folder_name.split('_')[1] + ' risks'
                     df = df[['model', 'score_test']].rename(columns={'score_test': risk_label})
                     dataframes.append(df)
-                    print(f"Loaded DataFrame from {csv_path}")
+                    #print(f"Loaded DataFrame from {csv_path}")
     if dataframes:
         merged_df = dataframes[0]
         for df in dataframes[1:]:
