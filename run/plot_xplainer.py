@@ -8,38 +8,33 @@ import matplotlib.pyplot as plt
 from utils import loading_config
 from tqdm import tqdm
 
-import numpy as np
-import pandas as pd
-
-def scale_shap_values(df, min_value=0.01):
+def scale_shap_values_np(array, min_value=0.01):
     """
-    Scales SHAP values in a DataFrame such that the smallest absolute value in each column is at least `min_value`.
+    Scales SHAP values in a NumPy array such that the smallest absolute value in each column 
+    is at least `min_value`.
 
     Args:
-        df (pd.DataFrame): DataFrame containing SHAP values.
+        array (np.ndarray): NumPy array containing SHAP values.
         min_value (float): The minimum absolute value desired for SHAP values after scaling (default is 0.01).
 
     Returns:
-        pd.DataFrame: A DataFrame with scaled SHAP values and an additional row showing the scaling factors.
+        tuple: A tuple containing the scaled NumPy array and a list of scaling factors for each column.
     """
-    scaling_factors = {}
-    scaled_df = df.copy()
-    
-    for column in df.columns:
-        min_abs_value = df[column].abs().min()
+    scaling_factors = []
+    scaled_array = array.copy()
+
+    for col_idx in range(array.shape[1]):
+        column = array[:, col_idx]
+        min_abs_value = np.min(np.abs(column))
         if min_abs_value > 0:
-            scaling_factors[column] = np.ceil(np.log10(min_value / min_abs_value))
+            scaling_factor = np.ceil(np.log10(min_value / min_abs_value))
         else:
-            scaling_factors[column] = 0
-        
-        scaling_factor = 10 ** scaling_factors[column]
-        scaled_df[column] = df[column] * scaling_factor
+            scaling_factor = 0
 
-    # Add scaling factors as the last row
-    scaled_df.loc["scaling_factor"] = [10 ** scaling_factors[col] for col in df.columns]
-    
-    return scaled_df
+        scaling_factors.append(10 ** scaling_factor)
+        scaled_array[:, col_idx] *= 10 ** scaling_factor
 
+    return scaled_array, scaling_factors
 
 def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_name, font_prop):
     """
@@ -53,7 +48,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         font_prop (FontProperties): Font properties for the plot.
     """
     
-    shap_values_val.values =  scale_shap_values(shap_values_val.values)
+    shap_values_val.values, _ =  scale_shap_values_np(shap_values_val.values)
     print("shap_values_val: ", shap_values_val)
     # Create list of plots to generate
     plots_to_generate = [
