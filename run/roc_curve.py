@@ -89,7 +89,7 @@ def process_folder_roc(base_dir, keywords, threshold, save_folder, ignore_svm=Tr
     for folder in os.listdir(base_dir):
         folder_path = os.path.join(base_dir, folder)
         if os.path.isdir(folder_path) and all(keyword in folder for keyword in keywords):
-            print(f"Processing folder: {folder_path}")
+            #print(f"Processing folder: {folder_path}")
 
             # Determine which column set to use based on folder name
             if '22' in folder:
