@@ -19,7 +19,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
         model_name (str): Name of the model.
         font_prop (FontProperties): Font properties for the plot.
     """
-    
+    print("shap_values_val: ", shap_values_val)
     # Create list of plots to generate
     plots_to_generate = [
         ('global bar', lambda: shap.plots.bar(shap_values_val, max_display=10, show=False)),
@@ -72,7 +72,7 @@ def process_folder_explainer(base_dir, keywords, model):
             if os.path.exists(shap_values_path):
                 with open(shap_values_path, 'rb') as f:
                     shap_values_val = pickle.load(f)
-                print(f"Loaded SHAP values for model: {model}")
+                #print(f"Loaded SHAP values for model: {model}")
 
                 # Generate SHAP plots
                 plot_shap_values_from_explainer(shap_values_val, test_x[cols_x], summary_dir, model, font_prop)
