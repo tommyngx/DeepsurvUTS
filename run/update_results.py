@@ -68,7 +68,7 @@ def update_repo(folder_path, github_acc, github_email, commit_message, branch="m
         print(f"Unexpected error: {e}")
 
 def main():
-    check_required_libraries()
+    #check_required_libraries()
     
     parser = argparse.ArgumentParser(description="Update existing Git repository to GitHub.")
     parser.add_argument('--folder', type=str, required=True, help="Path to the Git repository folder.")
