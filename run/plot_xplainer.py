@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from utils import loading_config
 from tqdm import tqdm
 
-def scale_shap_values_np(array, min_value=0.01):
+def scale_shap_values_np(array, min_value=0.001):
     """
     Scales SHAP values in a NumPy array such that the smallest absolute value in each column 
     is at least `min_value`.
@@ -49,7 +49,7 @@ def plot_shap_values_from_explainer(shap_values_val, X_val, save_folder, model_n
     """
     
     shap_values_val.values, _ =  scale_shap_values_np(shap_values_val.values)
-    print("shap_values_val: ", shap_values_val)
+    #print("shap_values_val: ", shap_values_val)
     # Create list of plots to generate
     plots_to_generate = [
         ('global bar', lambda: shap.plots.bar(shap_values_val, max_display=10, show=False)),
