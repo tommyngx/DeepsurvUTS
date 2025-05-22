@@ -12,6 +12,11 @@ import json
 import warnings, requests
 import subprocess
 
+# --- Add this block to allowlist MLPVanilla for torch.load ---
+import torch
+torch.serialization.add_safe_globals([tt.practical.MLPVanilla])
+# ------------------------------------------------------------
+
 def getGoogleSeet(spreadsheet_id, outDir, outFile):
 
   url = f'https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv'
