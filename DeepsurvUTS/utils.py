@@ -8,14 +8,13 @@ from pycox.models import DeepHitSingle, CoxPH
 from sklearn.model_selection import train_test_split
 import numpy as np
 import torchtuples as tt
+import torch  # Add torch import
 import json
 import warnings, requests
 import subprocess
 
-# --- Add this block to allowlist MLPVanilla for torch.load ---
-import torch
+# Add MLPVanilla to safe globals for PyTorch 2.6+
 torch.serialization.add_safe_globals([tt.practical.MLPVanilla])
-# ------------------------------------------------------------
 
 def getGoogleSeet(spreadsheet_id, outDir, outFile):
 
@@ -207,7 +206,13 @@ def load_model(filename, path, model_obj, in_features, out_features, params):
         net = tt.practical.MLPVanilla(
             in_features=in_features, out_features=out_features, num_nodes=num_nodes, **params)
         model = model_obj(net)
-    model.load_net(os.path.join(path, filename))
+    
+    try:
+        # Try loading with weights_only=False for PyTorch 2.6+ compatibility
+        model.load_net(os.path.join(path, filename), weights_only=False, map_location=torch.device('cpu'))
+    except TypeError:
+        # Fall back to original method for older PyTorch versions
+        model.load_net(os.path.join(path, filename))
 
     return model
 
@@ -420,12 +425,12 @@ def clone_and_update_repo(github_acc="Osteolab", github_email="tommylimitless@gm
         # Step 5: Add, commit, and push changes
         os.chdir(repo_path)
         print("Adding, committing, and pushing changes...")
-        subprocess.run(["git", "add", "."], check=True)
-        subprocess.run(["git", "commit", "-m", commit_message], check=False)
-        subprocess.run(["git", "push", "origin", branch], check=True)
-        
-        print(f"Changes pushed successfully to the {branch} branch!")
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e}")
+
+
+
+
+
+
+    except subprocess.CalledProcessError as e:        print(f"Changes pushed successfully to the {branch} branch!")                subprocess.run(["git", "push", "origin", branch], check=True)        subprocess.run(["git", "commit", "-m", commit_message], check=False)        subprocess.run(["git", "add", "."], check=True)        print(f"Command failed: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
